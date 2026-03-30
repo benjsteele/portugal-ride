@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>N2 Portugal – Cycling Route Tracker</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -198,6 +200,18 @@
     .t-desc  { color: #1565c0; }
     .t-total { font-weight: 800; color: var(--amber); }
 
+    /* ── LEAFLET ROUTING MACHINE — hide instructions panel ── */
+    .leaflet-routing-container { display: none !important; }
+    #map-loading {
+      position: absolute; inset: 0; background: rgba(255,255,255,0.7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; color: var(--text-muted); border-radius: 8px;
+      pointer-events: none; z-index: 500;
+      transition: opacity 0.3s;
+    }
+    #map-loading.hidden { opacity: 0; }
+    #map-container { position: relative; }
+
     /* ── FOOTER ── */
     footer {
       text-align: center;
@@ -302,7 +316,7 @@
     <div class="tabs" id="day-tabs"></div>
     <div id="day-header-bar"></div>
     <div class="day-view">
-      <div id="map"></div>
+      <div id="map-container"><div id="map"></div><div id="map-loading">Calculating route along N2…</div></div>
       <div class="chart-wrap">
         <canvas id="elevation-chart"></canvas>
       </div>
@@ -376,81 +390,120 @@ const DAYS = [
 // Almodôvar→Loulé→São Brás de Alportel→Faro
 const WAYPOINTS = {
   // Day 1: Chaves → Lamego (~100 km)
-  // N2 goes: Chaves → Vila Pouca de Aguiar → Vila Real → Santa Marta de Penaguião
-  //          → Peso da Régua → Lamego
   1: [
-    [41.7412, -7.4721],  // Chaves (km 0) – N2 start marker
-    [41.5002, -7.6438],  // Vila Pouca de Aguiar – N2 descends from highlands
-    [41.3006, -7.7441],  // Vila Real – historic city, Douro viewpoint
-    [41.2100, -7.7847],  // Santa Marta de Penaguião – vineyards, Miradouro de Santa Bárbara
-    [41.1656, -7.7885],  // Peso da Régua – Douro river crossing, Museu do Douro
-    [41.0974, -7.8099],  // Lamego – baroque sanctuary, day 1 finish
+    [41.7412, -7.4721],  // Chaves KM 0
+    [41.6700, -7.4880],  // S Chaves, Outeiro Seco direction
+    [41.5870, -7.5080],  // Vidago spa town
+    [41.5420, -7.5480],  // Bornes de Aguiar approach
+    [41.5002, -7.6438],  // Vila Pouca de Aguiar
+    [41.4460, -7.6800],  // mountain terrain S of VPA
+    [41.3850, -7.7050],  // N of Vila Real
+    [41.3006, -7.7441],  // Vila Real
+    [41.2600, -7.7650],  // S of Vila Real, Corgo valley
+    [41.2100, -7.7847],  // Santa Marta de Penaguião
+    [41.1800, -7.7960],  // pre-Régua approach
+    [41.1656, -7.7885],  // Peso da Régua
+    [41.1350, -7.8020],  // climb to Lamego
+    [41.0974, -7.8099],  // Lamego
   ],
-  // Day 2: Lamego → Aguieira reservoir / Mortágua area (~126 km)
-  // N2 goes: Lamego → Bigorne (highest point ~975m) → Castro Daire → São Pedro do Sul
-  //          → Viseu → Tondela → Santa Comba Dão → Mortágua → Aguieira reservoir
+  // Day 2: Lamego → Aguieira (~126 km)
+  // Highlights: Serra de Montemuro climb (~975 m), São Pedro do Sul, Viseu, Tondela
   2: [
-    [41.0974, -7.8099],  // Lamego – start of the long northern climb
-    [40.9014, -7.9312],  // Castro Daire – "Giant of the North" descent; famous bolo podre
-    [40.7598, -8.0641],  // São Pedro do Sul – thermal spa town
-    [40.6588, -7.9148],  // Viseu – cathedral city, Ecopista do Dão nearby
-    [40.5164, -8.0805],  // Tondela – route continues south through rolling terrain
-    [40.3931, -8.1502],  // Santa Comba Dão – confluence of Dão and Mondego rivers
-    [40.3969, -8.2325],  // Mortágua – typical villages, Aguieira area
-    [40.3700, -8.2000],  // Aguieira reservoir (Barragem da Aguieira) – day 2 finish
+    [41.0974, -7.8099],  // Lamego
+    [41.0490, -7.8480],  // start Serra de Montemuro climb
+    [40.9850, -7.8780],  // high plateau ~900 m
+    [40.9350, -7.9250],  // descent toward Castro Daire
+    [40.9014, -7.9312],  // Castro Daire
+    [40.8650, -7.9700],  // S of Castro Daire
+    [40.8250, -8.0150],  // approaching São Pedro do Sul
+    [40.7598, -8.0641],  // São Pedro do Sul
+    [40.7150, -7.9950],  // Vouga valley heading E to Viseu
+    [40.6700, -7.9400],  // NW Viseu approach
+    [40.6588, -7.9148],  // Viseu
+    [40.5950, -7.9680],  // SW of Viseu toward Tondela
+    [40.5164, -8.0805],  // Tondela
+    [40.4520, -8.1150],  // S toward Santa Comba Dão
+    [40.3931, -8.1502],  // Santa Comba Dão
+    [40.4050, -8.2050],  // Mortágua / Aguieira area
+    [40.3700, -8.2000],  // Aguieira reservoir (Barragem da Aguieira)
   ],
   // Day 3: Aguieira → Pedrógão Grande (~96 km)
-  // N2 does NOT go near Coimbra. Correct corridor:
-  // Aguieira → Penacova → Vila Nova de Poiares → Lousã → Góis → Pedrógão Grande
-  // Note: Near Aguieira the IP3 has replaced a section of old N2; navigate via
-  // Alto das Damas (40.311°N, 8.234°W) exit point back onto N2.
+  // Key: does NOT go near Coimbra — follows Serra da Lousã mountains via Góis
   3: [
-    [40.3700, -8.2000],  // Aguieira reservoir – start
-    [40.2702, -8.2811],  // Penacova – Livraria do Mondego viewpoint, Mondego river
-    [40.2065, -8.2545],  // Vila Nova de Poiares – km 246; chanfana cuisine
-    [40.1100, -8.2500],  // Lousã – km 261; Serra da Lousã, schist villages nearby
-    [40.1578, -8.1133],  // Góis – km 270; deep Ceira river valley
-    [39.9167, -8.1461],  // Pedrógão Grande – km 316; Cabril Dam, day 3 finish
+    [40.3700, -8.2000],  // Aguieira
+    [40.3300, -8.2150],  // S following Mondego valley
+    [40.2900, -8.2500],  // N of Penacova / Alto das Damas junction
+    [40.2702, -8.2811],  // Penacova
+    [40.2400, -8.2700],  // S of Penacova, Serra da Lousã approach
+    [40.2065, -8.2545],  // Vila Nova de Poiares
+    [40.1600, -8.2400],  // Serra da Lousã mountain section
+    [40.1100, -8.2500],  // Lousã
+    [40.1350, -8.1900],  // descend toward Ceira valley
+    [40.1578, -8.1133],  // Góis (Ceira valley)
+    [40.0900, -8.1300],  // S of Góis
+    [40.0200, -8.1450],  // continuing S
+    [39.9167, -8.1461],  // Pedrógão Grande
   ],
-  // Day 4: Pedrógão Grande → Gavião/Montargal area (~130 km)
-  // N2 does NOT go through Castelo Branco. Correct corridor heads southwest:
-  // Pedrógão Grande → Sertã → Vila de Rei (geodesic centre of Portugal) →
-  // Sardoal → Abrantes (crosses Tejo) → Ponte de Sor → Montargil area
+  // Day 4: Pedrógão Grande → Montargil (~130 km)
+  // Follows Zêzere valley: Sertã → Vila de Rei → Sardoal → Abrantes → Ponte de Sor
   4: [
-    [39.9167, -8.1461],  // Pedrógão Grande – start
-    [39.8008, -8.1003],  // Sertã – regional dishes bucho and maranho
-    [39.7069, -8.1284],  // Vila de Rei – geodesic centre of Portugal (Picoto da Melriça)
-    [39.5375, -8.1613],  // Sardoal – "pure land", yellow-trimmed houses
-    [39.4632, -8.1974],  // Abrantes – castle city on the Tejo river, km ~400
-    [39.2577, -8.0114],  // Ponte de Sor – cork production town
-    [39.1500, -8.0500],  // Montargil / Barragem de Montargil – reservoir, day 4 finish
+    [39.9167, -8.1461],  // Pedrógão Grande
+    [39.8700, -8.1200],  // N of Sertã
+    [39.8008, -8.1003],  // Sertã
+    [39.7650, -8.1220],  // S of Sertã, Zêzere valley
+    [39.7069, -8.1284],  // Vila de Rei (geodesic centre of Portugal)
+    [39.6500, -8.1500],  // Cardigos area
+    [39.5900, -8.1600],  // approaching Sardoal
+    [39.5375, -8.1613],  // Sardoal
+    [39.5000, -8.1900],  // S of Sardoal
+    [39.4632, -8.1974],  // Abrantes (Tejo crossing)
+    [39.3800, -8.0900],  // S of Abrantes
+    [39.3100, -8.0400],  // N of Ponte de Sor
+    [39.2577, -8.0114],  // Ponte de Sor
+    [39.1900, -8.0800],  // S along Sor river
+    [39.1350, -8.1350],  // approaching Montargil reservoir
+    [39.0850, -8.1690],  // Montargil village
   ],
-  // Day 5: Gavião/Montargal → Vila Galé Alentejo / Beja area (~163 km)
-  // N2 corridor: Montargil → Avis → Mora → Brotas → Ciborro → Montemor-o-Novo →
-  // Santiago do Escoural → Alcáçovas → Torrão → Ferreira do Alentejo → Beja area
-  // Note: Gavião is not on the N2; the user's stage endpoint "Gavião/Montargal"
-  // refers to the Montargil area around Ponte de Sor.
+  // Day 5: Montargil → Vila Galé Alentejo (~163 km)
+  // N2 in Alentejo makes characteristic east–west swings through:
+  // Avis (E) → Mora (W) → Coruche (far W) → Montemor → Viana → Alcácer (far W) → Ferreira
   5: [
-    [39.1500, -8.0500],  // Montargil (Barragem de Montargil)
-    [39.0552, -7.8913],  // Avis – Convento de São Bento de Avis, km ~470
-    [38.9442, -8.1655],  // Mora – Fluviário de Mora, km ~490
-    [38.7200, -8.1300],  // Brotas / Ciborro – km 500 milestone of N2
-    [38.6471, -8.2179],  // Montemor-o-Novo – castle, km ~520
-    [38.3833, -8.0167],  // Viana do Alentejo / Alcáçovas area – km ~550
-    [38.2833, -8.2333],  // Torrão – banks of River Xarrama, km 565–566
-    [38.0594, -8.1141],  // Ferreira do Alentejo – km ~610, Vila Galé area
+    [39.0850, -8.1690],  // Montargil
+    [39.0800, -8.1000],  // heading E toward Avis
+    [39.0730, -7.8900],  // Avis
+    [39.0050, -7.9600],  // SW toward Mora
+    [38.9380, -8.1600],  // Mora
+    [38.9580, -8.2800],  // heading W toward Coruche
+    [38.9580, -8.4000],  // continuing W
+    [38.9570, -8.5230],  // Coruche
+    [38.8900, -8.4700],  // heading SSE toward Montemor
+    [38.7800, -8.3600],  // continuing SE
+    [38.6460, -8.2160],  // Montemor-o-Novo
+    [38.5200, -8.1100],  // S toward Viana
+    [38.3340, -8.0060],  // Viana do Alentejo
+    [38.3600, -8.2500],  // heading W toward Alcácer
+    [38.3720, -8.5130],  // Alcácer do Sal
+    [38.2500, -8.3800],  // heading SE toward Ferreira
+    [38.1500, -8.2000],  // continuing SE
+    [38.0594, -8.1141],  // Ferreira do Alentejo / Vila Galé area
   ],
-  // Day 6: Beja area → Faro (~147 km)
-  // N2 corridor: Ferreira do Alentejo → Aljustrel → Castro Verde →
-  // Almodôvar → Barranco do Velho (Serra do Caldeirão) → São Brás de Alportel → Faro
+  // Day 6: Vila Galé Alentejo → Faro (~147 km)
+  // Aljustrel → Castro Verde → Almodôvar → Serra do Caldeirão → São Brás → Faro
   6: [
-    [38.0594, -8.1141],  // Ferreira do Alentejo / Vila Galé area – start
-    [37.8755, -8.1654],  // Aljustrel – mining village, Chapel of Our Lady of the Castle
-    [37.6967, -8.0844],  // Castro Verde – km ~650; UNESCO Biosphere Reserve, steppe birds
-    [37.5128, -8.0629],  // Almodôvar – km ~670; end of Alentejo, enter Serra do Caldeirão
-    [37.2669, -7.9088],  // Barranco do Velho – km ~700; 483m mountain pass, final climb
-    [37.1538, -7.8886],  // São Brás de Alportel – km ~722; descent to Algarve begins
-    [37.0194, -7.9322],  // Faro – km 738/739; N2 end marker
+    [38.0594, -8.1141],  // Ferreira do Alentejo / Vila Galé area
+    [37.9700, -8.1400],  // S toward Aljustrel
+    [37.8755, -8.1654],  // Aljustrel
+    [37.7900, -8.1300],  // between Aljustrel and Castro Verde
+    [37.6967, -8.0844],  // Castro Verde
+    [37.6050, -8.0750],  // S of Castro Verde
+    [37.5128, -8.0629],  // Almodôvar (end of Alentejo)
+    [37.4400, -8.0100],  // mountain foothills
+    [37.3600, -7.9600],  // climbing Serra do Caldeirão
+    [37.2669, -7.9088],  // Barranco do Velho (483 m pass)
+    [37.2100, -7.9100],  // descending to Algarve
+    [37.1538, -7.8886],  // São Brás de Alportel
+    [37.0900, -7.9100],  // descent to Faro
+    [37.0194, -7.9322],  // Faro KM 738
   ],
 };
 
@@ -578,10 +631,11 @@ function fmtTime(hrs) {
 // ═══════════════════════════════════════════════════════
 //  MAP & CHART STATE
 // ═══════════════════════════════════════════════════════
-let leafletMap = null;
-let routeLayer = null;
-let elevChart  = null;
-let activeDay  = 0; // index into DAYS
+let leafletMap     = null;
+let routeLayer     = null;
+let routingControl = null;
+let elevChart      = null;
+let activeDay      = 0; // index into DAYS
 
 // ═══════════════════════════════════════════════════════
 //  RENDER: SUMMARY TABLE
@@ -639,46 +693,85 @@ function renderPaceTable() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  RENDER: MAP
+//  RENDER: MAP  (Leaflet Routing Machine → OSRM roads)
 // ═══════════════════════════════════════════════════════
 function renderMap(dayIdx) {
-  const d = DAYS[dayIdx];
+  const d    = DAYS[dayIdx];
   const wpts = WAYPOINTS[d.day];
   const center = wpts[Math.floor(wpts.length / 2)];
+  const loadingEl = document.getElementById('map-loading');
 
+  // ── Init map once ──────────────────────────────────────
   if (!leafletMap) {
     leafletMap = L.map('map', { scrollWheelZoom: false }).setView(center, 9);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(leafletMap);
-  } else {
-    leafletMap.setView(center, 9);
-    if (routeLayer) { leafletMap.removeLayer(routeLayer); routeLayer = null; }
-    // remove any existing markers
-    leafletMap.eachLayer(l => { if (l instanceof L.Marker || l instanceof L.Polyline) leafletMap.removeLayer(l); });
   }
 
-  routeLayer = L.layerGroup();
+  // ── Clean up previous route ────────────────────────────
+  if (routingControl) {
+    leafletMap.removeControl(routingControl);
+    routingControl = null;
+  }
+  if (routeLayer) {
+    leafletMap.removeLayer(routeLayer);
+    routeLayer = null;
+  }
+  leafletMap.eachLayer(l => {
+    if (l instanceof L.Marker) leafletMap.removeLayer(l);
+  });
 
-  // Route polyline
-  L.polyline(wpts, { color: '#f77f00', weight: 4, opacity: 0.9 }).addTo(routeLayer);
+  // ── Show loading indicator ────────────────────────────
+  if (loadingEl) loadingEl.classList.remove('hidden');
 
-  // Start marker
-  L.marker(wpts[0], { icon: pinIcon('#2d6a4f', 'S') })
-    .bindPopup(`<b>Start:</b> ${d.from}`)
-    .addTo(routeLayer);
-
-  // End marker
-  L.marker(wpts[wpts.length-1], { icon: pinIcon('#c1121f', 'F') })
-    .bindPopup(`<b>Finish:</b> ${d.to}`)
-    .addTo(routeLayer);
-
-  routeLayer.addTo(leafletMap);
-
-  // Fit bounds
+  // ── Fit bounds to waypoints immediately ───────────────
   const bounds = L.latLngBounds(wpts);
-  leafletMap.fitBounds(bounds, { padding: [30, 30] });
+  leafletMap.fitBounds(bounds, { padding: [40, 40] });
+
+  // ── Start/finish markers ──────────────────────────────
+  L.marker(wpts[0], { icon: pinIcon('#2d6a4f', 'S') })
+    .bindPopup(`<b>Start:</b> ${d.from}`).addTo(leafletMap);
+  L.marker(wpts[wpts.length-1], { icon: pinIcon('#c1121f', 'F') })
+    .bindPopup(`<b>Finish:</b> ${d.to}`).addTo(leafletMap);
+
+  // ── Road-following route via OSRM (called from user browser) ──
+  const latlngs = wpts.map(([lat, lng]) => L.latLng(lat, lng));
+
+  routingControl = L.Routing.control({
+    waypoints: latlngs,
+    router: L.Routing.osrmv1({
+      serviceUrl: 'https://router.project-osrm.org/route/v1',
+      profile: 'bike',
+    }),
+    lineOptions: {
+      styles: [{ color: '#f77f00', weight: 4, opacity: 0.9 }],
+      extendToWaypoints: false,
+      missingRouteTolerance: 0,
+    },
+    show: false,
+    addWaypoints: false,
+    routeWhileDragging: false,
+    fitSelectedRoutes: false,
+    showAlternatives: false,
+    createMarker: () => null,
+  });
+
+  routingControl.on('routesfound', () => {
+    if (loadingEl) loadingEl.classList.add('hidden');
+  });
+
+  routingControl.on('routingerror', () => {
+    // Fallback: draw straight polyline between waypoints
+    if (loadingEl) loadingEl.classList.add('hidden');
+    if (!routeLayer) {
+      routeLayer = L.polyline(wpts, { color: '#f77f00', weight: 4, opacity: 0.8, dashArray: '8 4' })
+        .addTo(leafletMap);
+    }
+  });
+
+  routingControl.addTo(leafletMap);
 
   setTimeout(() => leafletMap.invalidateSize(), 50);
 }
