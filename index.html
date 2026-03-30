@@ -367,60 +367,90 @@ const DAYS = [
 ];
 
 // Waypoints: [lat, lon]
+// N2 corridor verified against official 35-municipality list:
+// Chaves→Vila Pouca de Aguiar→Vila Real→Santa Marta de Penaguião→Peso da Régua→
+// Lamego→Castro Daire→São Pedro do Sul→Viseu→Tondela→Santa Comba Dão→Mortágua→
+// Penacova→Vila Nova de Poiares→Lousã→Góis→Pedrógão Grande→Sertã→Vila de Rei→
+// Sardoal→Abrantes→Ponte de Sor→Avis→Mora→Coruche→Montemor-o-Novo→
+// Viana do Alentejo→Alcácer do Sal→Ferreira do Alentejo→Aljustrel→Castro Verde→
+// Almodôvar→Loulé→São Brás de Alportel→Faro
 const WAYPOINTS = {
-  // Day 1: Chaves → Lamego
+  // Day 1: Chaves → Lamego (~100 km)
+  // N2 goes: Chaves → Vila Pouca de Aguiar → Vila Real → Santa Marta de Penaguião
+  //          → Peso da Régua → Lamego
   1: [
-    [41.7394, -7.4716],  // Chaves
-    [41.6200, -7.5600],  // Vidago
-    [41.5000, -7.6200],  // Murça area
-    [41.3050, -7.7400],  // Vila Real
-    [41.1600, -7.7900],  // Peso da Régua
-    [41.0990, -7.8126],  // Lamego
+    [41.7412, -7.4721],  // Chaves (km 0) – N2 start marker
+    [41.5002, -7.6438],  // Vila Pouca de Aguiar – N2 descends from highlands
+    [41.3006, -7.7441],  // Vila Real – historic city, Douro viewpoint
+    [41.2100, -7.7847],  // Santa Marta de Penaguião – vineyards, Miradouro de Santa Bárbara
+    [41.1656, -7.7885],  // Peso da Régua – Douro river crossing, Museu do Douro
+    [41.0974, -7.8099],  // Lamego – baroque sanctuary, day 1 finish
   ],
-  // Day 2: Lamego → Aguieira
+  // Day 2: Lamego → Aguieira reservoir / Mortágua area (~126 km)
+  // N2 goes: Lamego → Bigorne (highest point ~975m) → Castro Daire → São Pedro do Sul
+  //          → Viseu → Tondela → Santa Comba Dão → Mortágua → Aguieira reservoir
   2: [
-    [41.0990, -7.8126],  // Lamego
-    [40.9600, -7.8700],  // Castro Daire
-    [40.8400, -7.8400],  // São Pedro do Sul
-    [40.6608, -7.9093],  // Viseu
-    [40.4000, -8.1300],  // Santa Comba Dão
-    [40.3650, -8.1330],  // Aguieira reservoir
+    [41.0974, -7.8099],  // Lamego – start of the long northern climb
+    [40.9014, -7.9312],  // Castro Daire – "Giant of the North" descent; famous bolo podre
+    [40.7598, -8.0641],  // São Pedro do Sul – thermal spa town
+    [40.6588, -7.9148],  // Viseu – cathedral city, Ecopista do Dão nearby
+    [40.5164, -8.0805],  // Tondela – route continues south through rolling terrain
+    [40.3931, -8.1502],  // Santa Comba Dão – confluence of Dão and Mondego rivers
+    [40.3969, -8.2325],  // Mortágua – typical villages, Aguieira area
+    [40.3700, -8.2000],  // Aguieira reservoir (Barragem da Aguieira) – day 2 finish
   ],
-  // Day 3: Aguieira → Pedrogão
+  // Day 3: Aguieira → Pedrógão Grande (~96 km)
+  // N2 does NOT go near Coimbra. Correct corridor:
+  // Aguieira → Penacova → Vila Nova de Poiares → Lousã → Góis → Pedrógão Grande
+  // Note: Near Aguieira the IP3 has replaced a section of old N2; navigate via
+  // Alto das Damas (40.311°N, 8.234°W) exit point back onto N2.
   3: [
-    [40.3650, -8.1330],  // Aguieira
-    [40.2500, -8.2800],  // Penacova area
-    [40.2085, -8.4285],  // Coimbra (skirt)
-    [40.1000, -8.3000],  // Lousã
-    [40.0300, -8.2200],  // Miranda do Corvo
-    [39.9180, -8.1370],  // Pedrogão Grande
+    [40.3700, -8.2000],  // Aguieira reservoir – start
+    [40.2702, -8.2811],  // Penacova – Livraria do Mondego viewpoint, Mondego river
+    [40.2065, -8.2545],  // Vila Nova de Poiares – km 246; chanfana cuisine
+    [40.1100, -8.2500],  // Lousã – km 261; Serra da Lousã, schist villages nearby
+    [40.1578, -8.1133],  // Góis – km 270; deep Ceira river valley
+    [39.9167, -8.1461],  // Pedrógão Grande – km 316; Cabril Dam, day 3 finish
   ],
-  // Day 4: Pedrogão → Montargal
+  // Day 4: Pedrógão Grande → Gavião/Montargal area (~130 km)
+  // N2 does NOT go through Castelo Branco. Correct corridor heads southwest:
+  // Pedrógão Grande → Sertã → Vila de Rei (geodesic centre of Portugal) →
+  // Sardoal → Abrantes (crosses Tejo) → Ponte de Sor → Montargil area
   4: [
-    [39.9180, -8.1370],  // Pedrogão Grande
-    [39.8200, -8.0500],  // Figueiró dos Vinhos area
-    [39.8258, -7.4919],  // Castelo Branco
-    [39.7500, -7.7500],  // Proença-a-Nova area
-    [39.5800, -7.9000],  // Nisa area
-    [39.4680, -7.9320],  // Gavião / Montargal
+    [39.9167, -8.1461],  // Pedrógão Grande – start
+    [39.8008, -8.1003],  // Sertã – regional dishes bucho and maranho
+    [39.7069, -8.1284],  // Vila de Rei – geodesic centre of Portugal (Picoto da Melriça)
+    [39.5375, -8.1613],  // Sardoal – "pure land", yellow-trimmed houses
+    [39.4632, -8.1974],  // Abrantes – castle city on the Tejo river, km ~400
+    [39.2577, -8.0114],  // Ponte de Sor – cork production town
+    [39.1500, -8.0500],  // Montargil / Barragem de Montargil – reservoir, day 4 finish
   ],
-  // Day 5: Montargal → Vila Galé Alentejo
+  // Day 5: Gavião/Montargal → Vila Galé Alentejo / Beja area (~163 km)
+  // N2 corridor: Montargil → Avis → Mora → Brotas → Ciborro → Montemor-o-Novo →
+  // Santiago do Escoural → Alcáçovas → Torrão → Ferreira do Alentejo → Beja area
+  // Note: Gavião is not on the N2; the user's stage endpoint "Gavião/Montargal"
+  // refers to the Montargil area around Ponte de Sor.
   5: [
-    [39.4680, -7.9320],  // Gavião
-    [39.2500, -8.0200],  // Ponte de Sor
-    [39.0600, -8.0000],  // Avis area
-    [38.7200, -7.9000],  // Évora area
-    [38.5000, -7.9500],  // Vidigueira area
-    [38.2530, -8.0910],  // Vila Galé Alentejo / Beja area
+    [39.1500, -8.0500],  // Montargil (Barragem de Montargil)
+    [39.0552, -7.8913],  // Avis – Convento de São Bento de Avis, km ~470
+    [38.9442, -8.1655],  // Mora – Fluviário de Mora, km ~490
+    [38.7200, -8.1300],  // Brotas / Ciborro – km 500 milestone of N2
+    [38.6471, -8.2179],  // Montemor-o-Novo – castle, km ~520
+    [38.3833, -8.0167],  // Viana do Alentejo / Alcáçovas area – km ~550
+    [38.2833, -8.2333],  // Torrão – banks of River Xarrama, km 565–566
+    [38.0594, -8.1141],  // Ferreira do Alentejo – km ~610, Vila Galé area
   ],
-  // Day 6: Vila Galé Alentejo → Faro
+  // Day 6: Beja area → Faro (~147 km)
+  // N2 corridor: Ferreira do Alentejo → Aljustrel → Castro Verde →
+  // Almodôvar → Barranco do Velho (Serra do Caldeirão) → São Brás de Alportel → Faro
   6: [
-    [38.2530, -8.0910],  // Vila Galé Alentejo
-    [38.0000, -8.0700],  // Mértola area
-    [37.6900, -8.0900],  // Castro Verde
-    [37.4000, -8.0200],  // Almodôvar
-    [37.1500, -7.8900],  // São Brás de Alportel
-    [37.0194, -7.9322],  // Faro
+    [38.0594, -8.1141],  // Ferreira do Alentejo / Vila Galé area – start
+    [37.8755, -8.1654],  // Aljustrel – mining village, Chapel of Our Lady of the Castle
+    [37.6967, -8.0844],  // Castro Verde – km ~650; UNESCO Biosphere Reserve, steppe birds
+    [37.5128, -8.0629],  // Almodôvar – km ~670; end of Alentejo, enter Serra do Caldeirão
+    [37.2669, -7.9088],  // Barranco do Velho – km ~700; 483m mountain pass, final climb
+    [37.1538, -7.8886],  // São Brás de Alportel – km ~722; descent to Algarve begins
+    [37.0194, -7.9322],  // Faro – km 738/739; N2 end marker
   ],
 };
 
