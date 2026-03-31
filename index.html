@@ -230,6 +230,40 @@
       margin-bottom: 1rem;
     }
 
+    /* ── COLLAPSIBLE CARDS ── */
+    details.card { padding: 0; }
+    details.card > summary {
+      padding: 1.25rem;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+    details.card > summary::-webkit-details-marker { display: none; }
+    details.card > summary::after {
+      content: '▸';
+      font-size: 1rem;
+      color: var(--green);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+    }
+    details.card[open] > summary::after { transform: rotate(90deg); }
+    details.card .card-body { padding: 0 1.25rem 1.25rem; }
+    .intensity-badge {
+      display: inline-block; border-radius: 12px;
+      padding: 0.25rem 0.8rem; font-size: 0.8rem; font-weight: 700;
+      margin-bottom: 0.75rem; margin-top: 0.25rem;
+    }
+    .badge-red    { background: #fdecea; color: #b71c1c; border: 1px solid #f5c6cb; }
+    .badge-yellow { background: #fff8e1; color: #7a5200; border: 1px solid #ffe082; }
+    .badge-green  { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+    .section-gap  { margin-top: 1.5rem; }
+    .mistakes-list { padding-left: 1.2rem; margin-top: 0.4rem; }
+    .mistakes-list li { margin-bottom: 0.35rem; font-size: 0.88rem; }
+
     /* ── PORTUGAL FLAG ACCENT ── */
     .flag-strip { height: 4px; background: linear-gradient(to right, #006600 40%, #ff0000 40%); }
 
@@ -359,6 +393,120 @@
       </table>
     </div>
   </div>
+
+<details class="card">
+  <summary><span class="card-title" style="margin:0">🍽️ Nutrition Plan</span></summary>
+  <div class="card-body">
+
+    <!-- RED: Days 1, 2, 3 -->
+    <div class="section-gap">
+      <span class="intensity-badge badge-red">🔴 High Intensity — Days 1, 2 &amp; 3 &nbsp;·&nbsp; 70–90 g carbs/hour</span>
+      <div class="note-box" style="margin-bottom:0.75rem">
+        Prioritise simple sugars. Avoid heavy fibre before and during riding.
+        <strong>Why white rice/pasta?</strong> Brown rice and whole grains digest too slowly
+        during high-intensity blocks. Save the fibre for rest days.
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Meal</th><th>Time</th><th>Food</th><th>Carbs (approx.)</th></tr></thead>
+          <tbody>
+            <tr><td>Dinner (night before)</td><td>7–8 PM</td><td>Large bowl white rice/pasta + olive oil + grilled chicken or risotto. No heavy fibre.</td><td>100–120 g</td></tr>
+            <tr><td>Breakfast</td><td>2–3 h before</td><td>Oatmeal (80 g dry) + honey (2 tbsp) + 1 banana + black coffee + pinch of salt</td><td>80–100 g</td></tr>
+            <tr><td>On-bike (per hour)</td><td>Every 20–30 min</td><td>2 gels OR 1 gel + 1 banana OR 3–4 chews + electrolyte drink (e.g. SiS Beta Fuel)</td><td>70–90 g</td></tr>
+            <tr><td>Lunch (cafe stop)</td><td>3–4 h in</td><td>White bread sandwich (tuna or ham, no salad) + 1 Coke + 1 pastel de nata</td><td>60–80 g</td></tr>
+            <tr><td>Post-ride</td><td>Within 30 min</td><td>500 ml chocolate milk OR recovery shake (3:1 carbs:protein)</td><td>40–50 g</td></tr>
+            <tr><td>Dinner</td><td>Within 2 h</td><td>White rice or mashed potatoes + lean protein + cooked carrots (low fibre)</td><td>80–100 g</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- YELLOW: Days 4 & 6 -->
+    <div class="section-gap">
+      <span class="intensity-badge badge-yellow">🟡 Moderate Intensity — Days 4 &amp; 6 &nbsp;·&nbsp; 40–60 g carbs/hour</span>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Meal</th><th>Time</th><th>Food</th><th>Carbs (approx.)</th></tr></thead>
+          <tbody>
+            <tr><td>Dinner (night before)</td><td>7–8 PM</td><td>Regular pasta or potato-based meal. You can add a small side salad.</td><td>80–100 g</td></tr>
+            <tr><td>Breakfast</td><td>2 h before</td><td>2 slices white toast with jam + 1 banana + 1 scrambled egg (optional)</td><td>50–60 g</td></tr>
+            <tr><td>On-bike (per hour)</td><td>Every 30 min</td><td>1 bar + 1 banana OR 1 gel + handful of dried figs. Electrolyte drink.</td><td>40–60 g</td></tr>
+            <tr><td>Lunch (cafe stop)</td><td>Mid-ride</td><td>Tosta mista (grilled ham &amp; cheese toastie) + orange juice + a piece of fruit</td><td>50–70 g</td></tr>
+            <tr><td>Post-ride</td><td>Within 30 min</td><td>1 banana + handful of nuts + water. Recovery shake optional.</td><td>20–30 g</td></tr>
+            <tr><td>Dinner</td><td>Evening</td><td>Grilled fish or pork + roasted potatoes + sautéed greens (broccoli or spinach OK)</td><td>70–90 g</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- GREEN: Day 5 -->
+    <div class="section-gap">
+      <span class="intensity-badge badge-green">🟢 Low Intensity — Day 5 (Évora plains) &nbsp;·&nbsp; 30–40 g carbs/hour</span>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Meal</th><th>Time</th><th>Food</th><th>Carbs (approx.)</th></tr></thead>
+          <tbody>
+            <tr><td>Dinner (night before)</td><td>7–8 PM</td><td>Whatever the local restaurant serves. Bifana (pork sandwich) with fries. Relax.</td><td>—</td></tr>
+            <tr><td>Breakfast</td><td>1–2 h before</td><td>Croissant + coffee + orange juice. No need to force a big meal.</td><td>30–40 g</td></tr>
+            <tr><td>On-bike (per hour)</td><td>As desired</td><td>1 bar every 90 minutes. Water only. Stop for a pastel de nata at a cafe.</td><td>30–40 g</td></tr>
+            <tr><td>Lunch</td><td>Any time</td><td>Full Portuguese lunch: soup + grilled fish or chicken + rice + salad + glass of vinho verde</td><td>60–80 g</td></tr>
+            <tr><td>Post-ride</td><td>Not critical</td><td>Eat when hungry. No rush.</td><td>—</td></tr>
+            <tr><td>Dinner</td><td>Evening</td><td>Celebrate halfway. Francesinha or fresh seafood in Évora.</td><td>80–100 g</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Cafe guide -->
+    <div class="section-gap">
+      <div class="card-title">☕ Portuguese Cafe Guide</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>On the Menu</th><th>What It Is</th><th>Best For</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Pastel de nata</strong></td><td>Custard tart (20 g carbs)</td><td>Quick sugar hit, any day</td></tr>
+            <tr><td><strong>Torrada</strong></td><td>White toast with butter (30 g carbs)</td><td>Breakfast or light snack</td></tr>
+            <tr><td><strong>Sumo natural</strong></td><td>Fresh orange juice (25 g carbs)</td><td>Pre-climb sugar</td></tr>
+            <tr><td><strong>Coca-Cola</strong></td><td>Coke (40 g carbs per can)</td><td>Emergency gel replacement</td></tr>
+            <tr><td><strong>Bola de Berlim</strong></td><td>Berliner donut (35 g carbs)</td><td>High-intensity treat</td></tr>
+            <tr><td><strong>Água com gás</strong></td><td>Sparkling water</td><td>Hydration without sugar</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mistakes -->
+    <div class="section-gap">
+      <div class="note-box">
+        <strong>⚠️ Three Mistakes to Avoid</strong>
+        <ol class="mistakes-list">
+          <li><strong>New foods on hard days</strong> — Do not try a strange pastry before a climb. Stick to gels and bananas on Days 1–3.</li>
+          <li><strong>Skipping post-ride fuel</strong> — Your next day starts the moment you stop. That chocolate milk matters.</li>
+          <li><strong>Over-eating fibre</strong> — Beans, lentils, and whole grains cause mid-ride digestive distress at high intensity.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</details>
+
+<details class="card">
+  <summary><span class="card-title" style="margin:0">🎒 On-Bike Packing List</span></summary>
+  <div class="card-body">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Item</th><th>Amount per Day</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Gels</td><td>4–6</td><td>For the steep ramps on Days 1–3</td></tr>
+          <tr><td>Chews</td><td>2 servings</td><td>Easier on the stomach than gels</td></tr>
+          <tr><td>Bars</td><td>3</td><td>For steady Zone 2 sections</td></tr>
+          <tr><td>Electrolyte tabs</td><td>4–6</td><td>Douro Valley heat is no joke</td></tr>
+          <tr><td>Cash</td><td>€15–20</td><td>For cafe stops (coffee, Coke, pastries)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</details>
 
 </main>
 
