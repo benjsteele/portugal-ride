@@ -72,8 +72,9 @@
       display: flex;
       justify-content: center;
       gap: 0.6rem;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       align-items: center;
+      white-space: nowrap;
     }
     .countdown-label {
       font-size: 0.78rem;
@@ -81,6 +82,7 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       margin-right: 0.3rem;
+      flex-shrink: 0;
     }
     .countdown-unit {
       background: rgba(0,0,0,0.25);
@@ -88,7 +90,8 @@
       border-radius: 8px;
       padding: 0.4rem 0.75rem;
       text-align: center;
-      min-width: 62px;
+      min-width: 56px;
+      flex-shrink: 0;
     }
     .countdown-num {
       display: block;
