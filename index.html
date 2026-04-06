@@ -66,6 +66,105 @@
       font-weight: 600;
     }
 
+    /* ── COUNTDOWN ── */
+    .countdown-wrap {
+      margin-top: 1.4rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .countdown-label {
+      font-size: 0.78rem;
+      opacity: 0.75;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-right: 0.3rem;
+    }
+    .countdown-unit {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 0.4rem 0.75rem;
+      text-align: center;
+      min-width: 62px;
+    }
+    .countdown-num {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--amber-light);
+      line-height: 1;
+    }
+    .countdown-unit span:last-child {
+      display: block;
+      font-size: 0.65rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 0.2rem;
+    }
+    #countdown-done {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--amber-light);
+    }
+
+    /* ── TRAINING SECTION ── */
+    .strava-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .strava-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .strava-card-header {
+      background: #fc4c02;
+      color: white;
+      padding: 0.55rem 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .strava-card-body {
+      padding: 0.75rem 0.9rem;
+      font-size: 0.85rem;
+    }
+    .strava-card-body .s-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.35rem;
+      color: var(--text);
+    }
+    .strava-stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.6rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .strava-stats strong { color: var(--text); }
+    .strava-link {
+      display: inline-block;
+      background: #fc4c02;
+      color: white;
+      border-radius: 5px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .strava-link:hover { background: #e03e00; }
+
     /* ── MAIN WRAPPER ── */
     main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
 
@@ -330,6 +429,14 @@
     <span class="stat-pill">10,252 m total climbing</span>
     <span class="stat-pill">6 stages</span>
   </div>
+  <div class="countdown-wrap" id="countdown-wrap">
+    <span class="countdown-label">Ride starts in</span>
+    <div class="countdown-unit"><span class="countdown-num" id="cd-days">--</span><span>Days</span></div>
+    <div class="countdown-unit"><span class="countdown-num" id="cd-hrs">--</span><span>Hours</span></div>
+    <div class="countdown-unit"><span class="countdown-num" id="cd-min">--</span><span>Mins</span></div>
+    <div class="countdown-unit"><span class="countdown-num" id="cd-sec">--</span><span>Secs</span></div>
+  </div>
+  <div id="countdown-done" style="display:none;margin-top:1.2rem">🚴 Ride is underway — good luck!</div>
 </header>
 
 <main>
@@ -522,6 +629,38 @@
         </tbody>
       </table>
     </div>
+  </div>
+</details>
+
+<details class="card">
+  <summary><span class="card-title" style="margin:0">🚴 Training Rides</span></summary>
+  <div class="card-body">
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem">
+      Training rides logged on Strava leading up to the N2. To add more rides, share each activity from
+      Strava → <strong>Share Activity → Link</strong> and paste the
+      <code>strava.com/activities/XXXXXXXXX</code> URL.
+    </p>
+    <div class="strava-grid" id="strava-grid">
+      <!-- Ride 1 — from your shared link -->
+      <div class="strava-card">
+        <div class="strava-card-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066l-2.084 4.116z"/><path d="M11.894 14.006l2.048-4.073L10.421 0 3.544 13.828h3.065l3.812-7.564 1.473 2.918z"/></svg>
+          Strava Activity
+        </div>
+        <div class="strava-card-body">
+          <div class="s-title">Training Ride</div>
+          <div class="strava-stats">
+            <span>View full details on Strava</span>
+          </div>
+          <a class="strava-link" href="https://strava.app.link/kWeC3PKX71b" target="_blank" rel="noopener noreferrer">View on Strava ↗</a>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-top:1rem">
+      ℹ️ Strava app links can't be embedded directly. For a full in-page embed, go to your activity on
+      <a href="https://www.strava.com" target="_blank" rel="noopener noreferrer">strava.com</a>,
+      click <strong>Share → Embed</strong> and paste the iframe code here.
+    </p>
   </div>
 </details>
 
@@ -1132,6 +1271,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (this.open && leafletMap) setTimeout(() => leafletMap.invalidateSize(), 50);
   });
 });
+
+// ═══════════════════════════════════════════════════════
+//  COUNTDOWN TIMER — May 23, 2026 06:00 local time
+// ═══════════════════════════════════════════════════════
+(function() {
+  const target = new Date('2026-05-23T06:00:00');
+  const wrap   = document.getElementById('countdown-wrap');
+  const done   = document.getElementById('countdown-done');
+  const els    = {
+    d: document.getElementById('cd-days'),
+    h: document.getElementById('cd-hrs'),
+    m: document.getElementById('cd-min'),
+    s: document.getElementById('cd-sec'),
+  };
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    const diff = target - Date.now();
+    if (diff <= 0) {
+      wrap.style.display = 'none';
+      done.style.display = 'block';
+      return;
+    }
+    const totalSec = Math.floor(diff / 1000);
+    els.d.textContent = Math.floor(totalSec / 86400);
+    els.h.textContent = pad(Math.floor((totalSec % 86400) / 3600));
+    els.m.textContent = pad(Math.floor((totalSec % 3600)  / 60));
+    els.s.textContent = pad(totalSec % 60);
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
 </script>
 </body>
 </html>
