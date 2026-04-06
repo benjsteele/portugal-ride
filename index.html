@@ -483,7 +483,7 @@
   </details>
 
   <!-- ── PACE CALCULATOR ── -->
-  <details class="card">
+  <details class="card" id="pace-details">
     <summary><span class="card-title" style="margin:0">Pace Calculator</span></summary>
     <div class="card-body">
       <div class="note-box note-neutral">
@@ -857,15 +857,6 @@ function generateElevationProfile(distKm, gainM, baseElev, seed) {
   const scale = measuredGain > 0 ? gainM / measuredGain : 1;
   for (let i = 0; i < N; i++) pts[i] = baseElev + pts[i] * scale;
 
-  // Clamp max to ~1400m (realistic for N2 corridor)
-  const maxAllowed = 1400;
-  let maxV = -Infinity;
-  for (let i = 0; i < N; i++) if (pts[i] > maxV) maxV = pts[i];
-  if (maxV > maxAllowed) {
-    const clampScale = (maxAllowed - baseElev) / (maxV - baseElev);
-    for (let i = 0; i < N; i++) pts[i] = baseElev + (pts[i] - baseElev) * clampScale;
-  }
-
   // Clamp minimum above sea level
   for (let i = 0; i < N; i++) if (pts[i] < 5) pts[i] = 5;
 
@@ -1182,6 +1173,8 @@ function renderElevationChart(dayIdx) {
         },
         y: {
           title: { display: true, text: 'Elevation (m)', font: { size: 11 } },
+          suggestedMin: Math.max(0, d.baseElev - 150),
+          suggestedMax: d.baseElev + d.gainM + 100,
           ticks: { font: { size: 10 } },
           grid: { color: 'rgba(0,0,0,0.06)' }
         }
@@ -1268,6 +1261,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSummary();
   renderPaceTable();
   selectDay(0);
+
+  // Guarantee pace calculator starts collapsed regardless of browser state
+  document.getElementById('pace-details').open = false;
 
   // Re-fit map when Day Explorer is toggled open
   document.getElementById('day-explorer-card').addEventListener('toggle', function() {
