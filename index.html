@@ -196,7 +196,7 @@
     }
     .slider-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
 
-    #pace-table th { background: var(--green); }
+    #pace-table th { background: var(--green-dark); }
     .t-climb { color: #c1121f; }
     .t-flat  { color: #2d6a4f; }
     .t-desc  { color: #1565c0; }
@@ -230,6 +230,11 @@
       font-size: 0.8rem;
       color: #7a5200;
       margin-bottom: 1rem;
+    }
+    .note-box.note-neutral {
+      background: var(--bg);
+      border-color: var(--border);
+      color: var(--text-muted);
     }
 
     /* ── COLLAPSIBLE CARDS ── */
@@ -362,7 +367,7 @@
   <!-- ── PACE CALCULATOR ── -->
   <div class="card">
     <div class="card-title">Pace Calculator</div>
-    <div class="note-box">
+    <div class="note-box note-neutral">
       Estimates assume FTP-effort riding throughout with no stops. Descents fixed at 40 km/h.
       Adjust your FTP and weight to see how pace changes for each stage.
     </div>
