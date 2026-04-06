@@ -335,75 +335,81 @@
 <main>
 
   <!-- ── SUMMARY TABLE ── -->
-  <div class="card">
-    <div class="card-title">Route Overview</div>
-    <div class="table-wrap">
-      <table id="summary-table">
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>Date</th>
-            <th>Stage</th>
-            <th>Distance</th>
-            <th>Elevation</th>
-            <th>Est. Time</th>
-            <th>Avg Speed</th>
-          </tr>
-        </thead>
-        <tbody id="summary-body"></tbody>
-      </table>
+  <details class="card" open>
+    <summary><span class="card-title" style="margin:0">Route Overview</span></summary>
+    <div class="card-body">
+      <div class="table-wrap">
+        <table id="summary-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Stage</th>
+              <th>Distance</th>
+              <th>Elevation</th>
+              <th>Est. Time</th>
+              <th>Avg Speed</th>
+            </tr>
+          </thead>
+          <tbody id="summary-body"></tbody>
+        </table>
+      </div>
     </div>
-  </div>
+  </details>
 
   <!-- ── DAY EXPLORER ── -->
-  <div class="card" id="day-explorer-card">
-    <div class="card-title">Day Explorer</div>
-    <div class="tabs" id="day-tabs"></div>
-    <div id="day-header-bar"></div>
-    <div class="day-view">
-      <div id="map-container"><div id="map"></div><div id="map-loading">Calculating route along N2…</div></div>
-      <div class="chart-wrap">
-        <canvas id="elevation-chart"></canvas>
+  <details class="card" open id="day-explorer-card">
+    <summary><span class="card-title" style="margin:0">Day Explorer</span></summary>
+    <div class="card-body">
+      <div class="tabs" id="day-tabs"></div>
+      <div id="day-header-bar"></div>
+      <div class="day-view">
+        <div id="map-container"><div id="map"></div><div id="map-loading">Calculating route along N2…</div></div>
+        <div class="chart-wrap">
+          <canvas id="elevation-chart"></canvas>
+        </div>
       </div>
     </div>
-  </div>
+  </details>
 
   <!-- ── PACE CALCULATOR ── -->
-  <div class="card">
-    <div class="card-title">Pace Calculator</div>
-    <div class="note-box note-neutral">
-      Estimates assume FTP-effort riding throughout with no stops. Descents fixed at 40 km/h.
-      Adjust your FTP and weight to see how pace changes for each stage.
-    </div>
-    <div class="sliders">
-      <div class="slider-group">
-        <label>FTP <span class="slider-val"><span id="ftp-display">200</span> W</span></label>
-        <input type="range" id="ftp-slider" min="100" max="400" value="200" step="5">
-        <div class="slider-sub">Functional Threshold Power</div>
+  <details class="card" open>
+    <summary><span class="card-title" style="margin:0">Pace Calculator</span></summary>
+    <div class="card-body">
+      <div class="note-box note-neutral">
+        Estimates assume FTP-effort riding throughout with no stops. Descents fixed at 40 km/h.
+        Adjust your FTP and weight to see how pace changes for each stage.
       </div>
-      <div class="slider-group">
-        <label>Weight <span class="slider-val"><span id="weight-display">100</span> kg</span></label>
-        <input type="range" id="weight-slider" min="50" max="130" value="100" step="1">
-        <div class="slider-sub">Rider + kit weight</div>
+      <div class="sliders">
+        <div class="slider-group">
+          <label>FTP <span class="slider-val"><span id="ftp-display">200</span> W</span></label>
+          <input type="range" id="ftp-slider" min="100" max="400" value="200" step="5">
+          <div class="slider-sub">Functional Threshold Power</div>
+        </div>
+        <div class="slider-group">
+          <label>Weight <span class="slider-val"><span id="weight-display">100</span> kg</span></label>
+          <input type="range" id="weight-slider" min="50" max="130" value="100" step="1">
+          <div class="slider-sub">Rider + kit weight</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="pace-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Stage</th>
+              <th class="t-climb">Climb time</th>
+              <th class="t-flat">Flat time</th>
+              <th class="t-desc">Descent time</th>
+              <th class="t-total">Total</th>
+              <th>Avg speed</th>
+            </tr>
+          </thead>
+          <tbody id="pace-body"></tbody>
+        </table>
       </div>
     </div>
-    <div class="table-wrap">
-      <table id="pace-table">
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>Stage</th>
-            <th class="t-climb">Climb time</th>
-            <th class="t-flat">Flat time</th>
-            <th class="t-desc">Descent time</th>
-            <th class="t-total">Total</th>
-            <th>Avg speed</th>
-          </tr>
-        </thead>
-        <tbody id="pace-body"></tbody>
-      </table>
-    </div>
-  </div>
+  </details>
 
 <details class="card">
   <summary><span class="card-title" style="margin:0">🍽️ Nutrition Plan</span></summary>
@@ -1120,6 +1126,11 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSummary();
   renderPaceTable();
   selectDay(0);
+
+  // Re-fit map when Day Explorer is toggled open
+  document.getElementById('day-explorer-card').addEventListener('toggle', function() {
+    if (this.open && leafletMap) setTimeout(() => leafletMap.invalidateSize(), 50);
+  });
 });
 </script>
 </body>
