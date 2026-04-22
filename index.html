@@ -313,6 +313,14 @@
     #pace-table th.t-flat,
     #pace-table th.t-desc,
     #pace-table th.t-total { color: white; font-weight: 600; }
+    #pwr-box {
+      display: flex; align-items: center; gap: 1.2rem;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.65rem 1.1rem; margin-top: 0.75rem;
+    }
+    #pwr-value { font-size: 1.6rem; font-weight: 800; color: var(--amber); }
+    #pwr-label { font-size: 0.78rem; color: var(--text-muted); }
+    #pwr-category { font-size: 0.88rem; font-weight: 600; }
     .t-climb { color: #c1121f; }
     .t-flat  { color: #2d6a4f; }
     .t-desc  { color: #1565c0; }
@@ -529,6 +537,13 @@
           <div class="slider-sub">Rider + kit weight</div>
         </div>
       </div>
+      <div id="pwr-box">
+        <div>
+          <div id="pwr-value">2.0 W/kg</div>
+          <div id="pwr-label">Power-to-weight ratio (FTP)</div>
+        </div>
+        <div id="pwr-category">Fitness Rider</div>
+      </div>
       <div class="table-wrap">
         <table id="pace-table">
           <thead>
@@ -577,7 +592,7 @@
 
     <!-- YELLOW: Days 4 & 6 -->
     <div class="section-gap">
-      <span class="intensity-badge badge-yellow">🟡 Moderate Intensity — Days 4 &amp; 6 &nbsp;·&nbsp; 40–60 g carbs/hour</span>
+      <span class="intensity-badge badge-yellow">🟡 Moderate Intensity — Days 4, 5 &amp; 6 &nbsp;·&nbsp; 60–70 g carbs/hour</span>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Meal</th><th>Time</th><th>Food</th><th>Carbs (approx.)</th></tr></thead>
@@ -588,24 +603,6 @@
             <tr><td>Lunch (cafe stop)</td><td>Mid-ride</td><td>Tosta mista (grilled ham &amp; cheese toastie) + orange juice + a piece of fruit</td><td>50–70 g</td></tr>
             <tr><td>Post-ride</td><td>Within 30 min</td><td>1 banana + handful of nuts + water. Recovery shake optional.</td><td>20–30 g</td></tr>
             <tr><td>Dinner</td><td>Evening</td><td>Grilled fish or pork + roasted potatoes + sautéed greens (broccoli or spinach OK)</td><td>70–90 g</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- GREEN: Day 5 -->
-    <div class="section-gap">
-      <span class="intensity-badge badge-green">🟢 Low Intensity — Day 5 (Évora plains) &nbsp;·&nbsp; 30–40 g carbs/hour</span>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Meal</th><th>Time</th><th>Food</th><th>Carbs (approx.)</th></tr></thead>
-          <tbody>
-            <tr><td>Dinner (night before)</td><td>7–8 PM</td><td>Whatever the local restaurant serves. Bifana (pork sandwich) with fries. Relax.</td><td>—</td></tr>
-            <tr><td>Breakfast</td><td>1–2 h before</td><td>Croissant + coffee + orange juice. No need to force a big meal.</td><td>30–40 g</td></tr>
-            <tr><td>On-bike (per hour)</td><td>As needed</td><td>Bars, gels and real food to make up intake. Easier flat day — no need to force feed. Stop for a pastel de nata at a cafe.</td><td>40–50 g</td></tr>
-            <tr><td>Lunch</td><td>Any time</td><td>Full Portuguese lunch: soup + grilled fish or chicken + rice + salad + glass of vinho verde</td><td>60–80 g</td></tr>
-            <tr><td>Post-ride</td><td>Not critical</td><td>Eat when hungry. No rush.</td><td>—</td></tr>
-            <tr><td>Dinner</td><td>Evening</td><td>Celebrate halfway. Francesinha or fresh seafood in Évora.</td><td>80–100 g</td></tr>
           </tbody>
         </table>
       </div>
@@ -730,17 +727,17 @@
 
     <!-- WEEK 2 -->
     <div class="section-gap">
-      <div class="card-title">Week 2 &nbsp;·&nbsp; Apr 22–28 &nbsp;·&nbsp; Includes Apr 26 light day &nbsp;<span style="font-weight:400;color:var(--text-muted)">11h · 3,300m</span></div>
+      <div class="card-title">Week 2 &nbsp;·&nbsp; Apr 22–28 &nbsp;·&nbsp; Includes Apr 26 light day &nbsp;<span style="font-weight:400;color:var(--text-muted)">11h · 4,300m</span></div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Day</th><th>Date</th><th>Workout</th><th>Duration</th><th>Elevation</th><th>Notes</th></tr></thead>
           <tbody>
             <tr><td>Wed</td><td>Apr 22</td><td>Tempo intervals</td><td>2h</td><td>600m</td><td>3 × 10 min @ 140W</td></tr>
             <tr><td>Thu</td><td>Apr 23</td><td>Recovery spin</td><td>1h</td><td>flat</td><td>Very easy</td></tr>
-            <tr><td>Fri</td><td>Apr 24</td><td>Climbing focus</td><td>2.5h</td><td>1,200m</td><td>Walk steep ramps</td></tr>
-            <tr><td>Sat</td><td>Apr 25</td><td>Easy spin</td><td>1.5h</td><td>300m</td><td>110W</td></tr>
+            <tr><td>Fri</td><td>Apr 24</td><td>Climbing focus</td><td>2.5h</td><td>1,600m</td><td>Walk steep ramps</td></tr>
+            <tr><td>Sat</td><td>Apr 25</td><td>Easy spin</td><td>1.5h</td><td>600m</td><td>110W</td></tr>
             <tr style="background:#fff8e8"><td>Sun</td><td>Apr 26</td><td>🎉 Light spin (communion)</td><td>1h</td><td>flat</td><td>No climbing, easy spin</td></tr>
-            <tr><td>Mon</td><td>Apr 27</td><td>Back-to-back (make-up)</td><td>3h</td><td>1,200m</td><td>Tired legs — keep easy</td></tr>
+            <tr><td>Mon</td><td>Apr 27</td><td>Back-to-back (make-up)</td><td>3h</td><td>1,500m</td><td>Tired legs — keep easy</td></tr>
             <tr><td>Tue</td><td>Apr 28</td><td>Rest</td><td>—</td><td>—</td><td>Stretch</td></tr>
           </tbody>
         </table>
@@ -787,15 +784,15 @@
 
     <!-- WEEK 5 -->
     <div class="section-gap">
-      <div class="card-title">Week 5 &nbsp;·&nbsp; May 13–19 &nbsp;·&nbsp; Taper begins &nbsp;<span style="font-weight:400;color:var(--text-muted)">11.5h · 3,600m</span></div>
+      <div class="card-title">Week 5 &nbsp;·&nbsp; May 13–19 &nbsp;·&nbsp; Taper begins &nbsp;<span style="font-weight:400;color:var(--text-muted)">11.5h · 4,200m</span></div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Day</th><th>Date</th><th>Workout</th><th>Duration</th><th>Elevation</th><th>Notes</th></tr></thead>
           <tbody>
             <tr><td>Wed</td><td>May 13</td><td>Easy spin</td><td>1.5h</td><td>300m</td><td>Recovery</td></tr>
-            <tr><td>Thu</td><td>May 14</td><td>Tempo climb</td><td>2h</td><td>800m</td><td>3 × 10 min @ 140W</td></tr>
+            <tr><td>Thu</td><td>May 14</td><td>Tempo climb</td><td>2h</td><td>1,000m</td><td>3 × 10 min @ 140W</td></tr>
             <tr><td>Fri</td><td>May 15</td><td>Recovery</td><td>1h</td><td>flat</td><td>100W</td></tr>
-            <tr><td>Sat</td><td>May 16</td><td>Steady climb</td><td>2.5h</td><td>1,000m</td><td>Z2, easy</td></tr>
+            <tr><td>Sat</td><td>May 16</td><td>Steady climb</td><td>2.5h</td><td>1,400m</td><td>Z2, easy</td></tr>
             <tr><td>Sun</td><td>May 17</td><td>Last long ride</td><td>3h</td><td>1,200m</td><td>Easy, no walking</td></tr>
             <tr><td>Mon</td><td>May 18</td><td>Recovery spin</td><td>1.5h</td><td>300m</td><td>Very light</td></tr>
             <tr><td>Tue</td><td>May 19</td><td>Rest</td><td>—</td><td>—</td><td>Walk 30 min</td></tr>
@@ -1392,9 +1389,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const ftpDisplay   = document.getElementById('ftp-display');
   const weightDisplay = document.getElementById('weight-display');
 
+  const pwrValue    = document.getElementById('pwr-value');
+  const pwrCategory = document.getElementById('pwr-category');
+  function pwrCategory_(wkg) {
+    if (wkg < 1.5) return { label: 'Recreational',       color: '#888' };
+    if (wkg < 2.5) return { label: 'Fitness Rider',      color: '#64b5f6' };
+    if (wkg < 3.1) return { label: 'Sportive / Gran Fondo', color: '#4db6ac' };
+    if (wkg < 3.6) return { label: 'Amateur Racer',      color: '#aed581' };
+    if (wkg < 4.1) return { label: 'Cat 3–4',            color: '#ffb74d' };
+    if (wkg < 5.0) return { label: 'Cat 1–2',            color: '#ff8a65' };
+    return                  { label: 'Pro / Elite',       color: '#e57373' };
+  }
+
   function onSliderChange() {
     ftpDisplay.textContent    = ftpSlider.value;
     weightDisplay.textContent = weightSlider.value;
+    const wkg = (+ftpSlider.value / +weightSlider.value).toFixed(2);
+    const cat  = pwrCategory_(+wkg);
+    pwrValue.textContent    = wkg + ' W/kg';
+    pwrCategory.textContent = cat.label;
+    pwrCategory.style.color = cat.color;
     renderSummary();
     renderPaceTable();
     renderDayHeader(activeDay);
@@ -1405,8 +1419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Build UI
   buildTabs();
-  renderSummary();
-  renderPaceTable();
+  onSliderChange();
   selectDay(0);
 
   // Guarantee pace calculator starts collapsed regardless of browser state
