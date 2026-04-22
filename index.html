@@ -438,8 +438,8 @@
   <h1>🇵🇹 N2 Portugal — Cycling Route</h1>
   <p>Chaves to Faro &nbsp;·&nbsp; May 25–30, 2026</p>
   <div class="header-stats">
-    <span class="stat-pill">762 km total</span>
-    <span class="stat-pill">10,252 m total climbing</span>
+    <span class="stat-pill">730 km total</span>
+    <span class="stat-pill">10,954 m total climbing</span>
     <span class="stat-pill">6 stages</span>
   </div>
   <div class="countdown-wrap" id="countdown-wrap">
@@ -840,9 +840,9 @@ const DAYS = [
   { day:1, date:'Mon 25 May', from:'Chaves',             to:'Lamego',              distKm:100, gainM:1817, baseElev:340,  seed:1 },
   { day:2, date:'Tue 26 May', from:'Lamego',             to:'Aguieira',            distKm:126, gainM:2044, baseElev:675,  seed:2 },
   { day:3, date:'Wed 27 May', from:'Aguieira',           to:'Pedrogão',            distKm:96,  gainM:2105, baseElev:125,  seed:3 },
-  { day:4, date:'Thu 28 May', from:'Pedrogão',           to:'Montargal',           distKm:130, gainM:1679, baseElev:285,  seed:4 },
-  { day:5, date:'Fri 29 May', from:'Montargal',          to:'Vila Galé Alentejo',  distKm:163, gainM:1070, baseElev:220,  seed:5 },
-  { day:6, date:'Sat 30 May', from:'Vila Galé Alentejo', to:'Faro',                distKm:147, gainM:1537, baseElev:185,  seed:6 },
+  { day:4, date:'Thu 28 May', from:'Pedrogão',           to:'Montargil',           distKm:130, gainM:1679, baseElev:285,  seed:4 },
+  { day:5, date:'Fri 29 May', from:'Montargil',          to:'Ervidel',             distKm:147, gainM:1772, baseElev:220,  seed:5 },
+  { day:6, date:'Sat 30 May', from:'Ervidel',            to:'Faro',                distKm:131, gainM:1537, baseElev:150,  seed:6 },
 ];
 
 // Waypoints: [lat, lon]
@@ -929,46 +929,35 @@ const WAYPOINTS = {
     [39.1350, -8.1350],  // approaching Montargil reservoir
     [39.0850, -8.1690],  // Montargil village
   ],
-  // Day 5: Montargil → Vila Galé Alentejo (~163 km)
-  // N2 in Alentejo makes characteristic east–west swings through:
-  // Avis (E) → Mora (W) → Coruche (far W) → Montemor → Viana → Alcácer (far W) → Ferreira
+  // Day 5: Montargil → Ervidel (~147 km) — official route per event doc
+  // S through central Alentejo: Mora → Montemor-o-Novo → Viana → Ferreira → Ervidel
   5: [
     [39.0850, -8.1690],  // Montargil
-    [39.0800, -8.1000],  // heading E toward Avis
-    [39.0730, -7.8900],  // Avis
-    [39.0050, -7.9600],  // SW toward Mora
     [38.9380, -8.1600],  // Mora
-    [38.9580, -8.2800],  // heading W toward Coruche
-    [38.9580, -8.4000],  // continuing W
-    [38.9570, -8.5230],  // Coruche
-    [38.8900, -8.4700],  // heading SSE toward Montemor
-    [38.7800, -8.3600],  // continuing SE
+    [38.8200, -8.1900],  // heading S
     [38.6460, -8.2160],  // Montemor-o-Novo
-    [38.5200, -8.1100],  // S toward Viana
+    [38.5200, -8.1600],  // heading S
     [38.3340, -8.0060],  // Viana do Alentejo
-    [38.3600, -8.2500],  // heading W toward Alcácer
-    [38.3720, -8.5130],  // Alcácer do Sal
-    [38.2500, -8.3800],  // heading SE toward Ferreira
-    [38.1500, -8.2000],  // continuing SE
-    [38.0594, -8.1141],  // Ferreira do Alentejo / Vila Galé area
+    [38.2200, -8.1000],  // heading SW
+    [38.1200, -8.1400],  // Ferreira do Alentejo
+    [38.0700, -8.1500],  // continuing S
+    [37.9067, -8.1433],  // Ervidel
   ],
-  // Day 6: Vila Galé Alentejo → Faro (~147 km)
-  // Aljustrel → Castro Verde → Almodôvar → Serra do Caldeirão → São Brás → Faro
+  // Day 6: Ervidel → Faro (~131 km) — official route per event doc
+  // Castro Verde (35km) → Fonte Siceira (79km) → Almodovar → Serra Caldeirão → Faro
   6: [
-    [38.0594, -8.1141],  // Ferreira do Alentejo / Vila Galé area
-    [37.9700, -8.1400],  // S toward Aljustrel
-    [37.8755, -8.1654],  // Aljustrel
-    [37.7900, -8.1300],  // between Aljustrel and Castro Verde
-    [37.6967, -8.0844],  // Castro Verde
+    [37.9067, -8.1433],  // Ervidel
+    [37.7900, -8.1300],  // N of Castro Verde
+    [37.6967, -8.0844],  // Castro Verde (pit stop 1 @ 35km)
     [37.6050, -8.0750],  // S of Castro Verde
-    [37.5128, -8.0629],  // Almodôvar (end of Alentejo)
+    [37.5128, -8.0629],  // Almodovar
     [37.4400, -8.0100],  // mountain foothills
     [37.3600, -7.9600],  // climbing Serra do Caldeirão
     [37.2669, -7.9088],  // Barranco do Velho (483 m pass)
     [37.2100, -7.9100],  // descending to Algarve
     [37.1538, -7.8886],  // São Brás de Alportel
     [37.0900, -7.9100],  // descent to Faro
-    [37.0194, -7.9322],  // Faro KM 738
+    [37.0194, -7.9322],  // Faro — Hotel AP Eva Senses
   ],
 };
 
