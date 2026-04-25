@@ -279,6 +279,23 @@
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
     }
+    #day-itinerary { margin-top: 1.1rem; }
+    #day-itinerary .itin-note {
+      font-size: 0.8rem; padding: 0.45rem 0.8rem;
+      border-radius: 6px; margin-bottom: 0.6rem;
+    }
+    .itin-type-depart  { background:#e8f5e9; }
+    .itin-type-pitstop { background:#fff8e8; }
+    .itin-type-bus     { background:#e3f2fd; }
+    .itin-type-finish  { background:#fdecea; }
+    .itin-badge {
+      display:inline-block; padding:0.1rem 0.5rem; border-radius:12px;
+      font-size:0.72rem; font-weight:700; white-space:nowrap;
+    }
+    .badge-depart  { background:#c8e6c9; color:#1b5e20; }
+    .badge-pitstop { background:#fce1b0; color:#7c4700; }
+    .badge-bus     { background:#bbdefb; color:#0d47a1; }
+    .badge-finish  { background:#ffcdd2; color:#b71c1c; }
     @media (max-width: 780px) {
       .day-view { grid-template-columns: 1fr; }
     }
@@ -516,6 +533,7 @@
           <canvas id="elevation-chart"></canvas>
         </div>
       </div>
+      <div id="day-itinerary"></div>
     </div>
   </details>
 
@@ -592,6 +610,47 @@
       </div>
     </div>
 
+    <!-- PIT STOP GUIDE: Days 1-3 -->
+    <div class="section-gap">
+      <div class="card-title" style="font-size:0.9rem;margin-bottom:0.6rem">⛽ Pit Stop Fuel Guide — Days 1, 2 &amp; 3</div>
+
+      <div style="margin-bottom:1rem">
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 1 · Chaves → Lamego · 100 km · +2,614 m</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>A Recta</strong></td><td>41 km</td><td>+964 m</td><td>Sandwich (tuna or ham) + Coke + pastel de nata. Top up bottles. First big climb done.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>Santa Marta</strong></td><td>80 km</td><td>+1,890 m</td><td>1 gel + 1 bar + water refill. Quick stop — 20 km to go. Save energy.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Lamego</strong></td><td>100 km</td><td>+2,614 m</td><td>500 ml chocolate milk within 30 min. Big white-rice dinner at 7:30pm.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 2 · Lamego → Aguieira · 126 km · +2,818 m</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>Boémio</strong></td><td>56 km</td><td>+1,401 m</td><td>Tosta mista or sandwich + orange juice + pastel de nata. Fill bottles. Halfway point.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>O Terraço</strong></td><td>95 km</td><td>+2,135 m</td><td>2 gels + bar. Quick — 31 km to go. Don't sit too long.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Aguieira</strong></td><td>126 km</td><td>+2,818 m</td><td>Recovery shake immediately. Rest well — Day 3 is the hardest.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div>
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 3 · Aguieira → Pedrógão · 96 km · +3,066 m &nbsp;<span style="font-weight:400;color:var(--text-muted)">(bus from km 90)</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>Beira Rio</strong></td><td>46 km</td><td>+1,310 m</td><td>Biggest real-food stop of the week. Soup + sandwich if available. Max out bottles.</td></tr>
+            <tr style="background:#e3f2fd"><td><strong>Bus transfer</strong></td><td>90 km</td><td>+2,766 m</td><td>Have a gel before boarding. Eat a bar on the bus. Road is closed — bus is mandatory.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Hotel da Montanha</strong></td><td>96 km</td><td>+3,066 m</td><td>Recovery shake. Hardest day done. Dinner 7:30pm.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
     <!-- YELLOW: Days 4 & 6 -->
     <div class="section-gap">
       <span class="intensity-badge badge-yellow">🟡 Moderate Intensity — Days 4, 5 &amp; 6 &nbsp;·&nbsp; 60–70 g carbs/hour</span>
@@ -607,6 +666,47 @@
             <tr><td>Dinner</td><td>Evening</td><td>Grilled fish or pork + roasted potatoes + sautéed greens (broccoli or spinach OK)</td><td>70–90 g</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- PIT STOP GUIDE: Days 4-6 -->
+    <div class="section-gap">
+      <div class="card-title" style="font-size:0.9rem;margin-bottom:0.6rem">⛽ Pit Stop Fuel Guide — Days 4, 5 &amp; 6</div>
+
+      <div style="margin-bottom:1rem">
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 4 · Pedrógão → Montargil · 130 km · +2,271 m</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>Três Coroas</strong></td><td>70 km</td><td>+1,600 m</td><td>Tosta mista + orange juice. Flatter terrain ahead — pace picks up.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>O Terraço</strong></td><td>95 km</td><td>+1,997 m</td><td>1 bar + 1 gel + water. 35 km to go — comfortable. Don't over-eat.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Montargil</strong></td><td>130 km</td><td>+2,271 m</td><td>Recovery shake. Lago Montargil dinner 7:30pm.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 5 · Montargil → Ervidel/Beja · 141 km · +2,088 m &nbsp;<span style="font-weight:400;color:var(--text-muted)">(bus from Café Imperial)</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>Café Rotunda</strong></td><td>58 km</td><td>+902 m</td><td>Sandwich or tosta + Coke. Manageable climbing so far. Keep fuelling steady.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>Piknic</strong></td><td>91 km</td><td>+1,426 m</td><td>Real food stop — soup or local plate if available. 50 km to go. Top up everything.</td></tr>
+            <tr style="background:#e3f2fd"><td><strong>Café Imperial (bus)</strong></td><td>141 km</td><td>+2,088 m</td><td>Walk 400m back to bike storage. Drink on the bus. BejaParque dinner 7:30pm.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div>
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 6 · Ervidel → Faro · 141 km · +2,369 m &nbsp;<span style="font-weight:400;color:var(--text-muted)">(bus to start)</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>Castro Verde</strong></td><td>35 km</td><td>+563 m</td><td>Quick stop — bar + water. Easy climb so far. Serra do Caldeirão ahead.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>Fonte Siceira</strong></td><td>79 km</td><td>+1,306 m</td><td>Tosta mista + Coke. 62 km to Faro. Big descent and final push ahead.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Faro 🎉</strong></td><td>141 km</td><td>+2,369 m</td><td>You've ridden the N2. Hotel Eva Senses dinner 7:30pm. Celebrate.</td></tr>
+          </tbody>
+        </table></div>
       </div>
     </div>
 
@@ -851,6 +951,73 @@ const DAYS = [
   { day:5, date:'Fri 29 May', from:'Montargil', to:'Ervidel',   distKm:147.3, gainM:2168 },
   { day:6, date:'Sat 30 May', from:'Ervidel',   to:'Faro',      distKm:141.0, gainM:2370 },
 ];
+
+// ═══════════════════════════════════════════════════════
+//  DAILY ITINERARY  (from official N2 Roadbook 2026)
+// ═══════════════════════════════════════════════════════
+// gain values = cumulative elevation gain at that km marker (from GPX)
+const ITINERARY = {
+  1: {
+    note: null,
+    dinner: 'Lamego Hotel & Life — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Hotel Premium Chaves',       time:'8:30am'  },
+      { type:'pitstop', km:41,  gain:964,  name:'A Recta',                    time:'~10:30am'},
+      { type:'pitstop', km:80,  gain:1890, name:'Santa Marta',                time:'~1:00pm' },
+      { type:'finish',  km:100, gain:2614, name:'Lamego Hotel & Life',        time:'~2:00pm' },
+    ],
+  },
+  2: {
+    note: null,
+    dinner: 'Montebelo Aguieira Lake Resort — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Lamego Hotel Car Park',              time:'8:30am'  },
+      { type:'pitstop', km:56,  gain:1401, name:'Boémio',                             time:'~10:30am'},
+      { type:'pitstop', km:95,  gain:2135, name:'O Terraço',                          time:'~1:00pm' },
+      { type:'finish',  km:126, gain:2818, name:'Montebelo Aguieira Lake Resort',     time:'~2:00pm' },
+    ],
+  },
+  3: {
+    note: '⚠️ Road closed at km 93 — cycling ends at km 90. Bus transfer from km 90 to Hotel da Montanha.',
+    dinner: 'Hotel da Montanha — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,  gain:0,    name:'Montebelo Aguieira Car Park',   time:'8:30am'  },
+      { type:'pitstop', km:46, gain:1310, name:'Beira Rio',                      time:'~10:30am'},
+      { type:'bus',     km:90, gain:2766, name:'Bus transfer — Hotel da Montanha', time:'~2:00pm'},
+      { type:'finish',  km:96, gain:3066, name:'Hotel da Montanha (bus)',         time:'~3:00pm' },
+    ],
+  },
+  4: {
+    note: null,
+    dinner: 'Lago Montargil & Villas — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Hotel da Montanha Car Park',  time:'8:30am'  },
+      { type:'pitstop', km:70,  gain:1600, name:'Três Coroas',                  time:'~10:30am'},
+      { type:'pitstop', km:95,  gain:1997, name:'O Terraço',                    time:'~1:00pm' },
+      { type:'finish',  km:130, gain:2271, name:'Lago Montargil & Villas',     time:'~2:00pm' },
+    ],
+  },
+  5: {
+    note: '⚠️ Café Imperial is the cycling finish — walk 400m back to bike storage, then bus to BejaParque Hotel.',
+    dinner: 'BejaParque Hotel — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Lago Montargil & Villas Car Park', time:'8:30am'  },
+      { type:'pitstop', km:58,  gain:902,  name:'Café Rotunda',                      time:'~10:30am'},
+      { type:'pitstop', km:91,  gain:1426, name:'Piknic',                             time:'~1:00pm' },
+      { type:'bus',     km:141, gain:2088, name:'Café Imperial → bus to BejaParque', time:'~2:00pm' },
+    ],
+  },
+  6: {
+    note: '🚌 Bus from BejaParque Hotel to Ervidel departs 8:30am before riding begins.',
+    dinner: 'Hotel Eva Senses, Faro — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Ervidel (bus transfer from hotel)',  time:'~9:00am' },
+      { type:'pitstop', km:35,  gain:563,  name:'Castro Verde',                        time:'~10:30am'},
+      { type:'pitstop', km:79,  gain:1306, name:'Fonte Siceira',                       time:'~1:00pm' },
+      { type:'finish',  km:141, gain:2369, name:'Hotel Eva Senses, Faro',              time:'~4:00pm' },
+    ],
+  },
+};
 
 // ═══════════════════════════════════════════════════════
 //  GPX LOADER  (fetch + parse + cache)
@@ -1182,6 +1349,48 @@ function renderDayHeader(dayIdx) {
 }
 
 // ═══════════════════════════════════════════════════════
+//  RENDER: DAILY ITINERARY
+// ═══════════════════════════════════════════════════════
+function renderItinerary(dayIdx) {
+  const d  = DAYS[dayIdx];
+  const it = ITINERARY[d.day];
+  const el = document.getElementById('day-itinerary');
+  if (!it || !el) return;
+
+  const icons  = { depart:'🚲', pitstop:'🍊', bus:'🚌', finish:'🏁' };
+  const labels = { depart:'Departure', pitstop:'Pit Stop', bus:'Bus Transfer', finish:'Finish' };
+  const noteColors = {
+    depart: '#e8f5e9', pitstop: '#fff8e8', bus: '#e3f2fd', finish: '#fdecea',
+  };
+
+  const rows = it.stops.map(s => {
+    const bg = noteColors[s.type];
+    return `<tr style="background:${bg}">
+      <td><span class="itin-badge badge-${s.type}">${icons[s.type]} ${labels[s.type]}</span></td>
+      <td style="text-align:center;font-weight:600">${s.km > 0 ? s.km + ' km' : '—'}</td>
+      <td style="text-align:center;font-weight:600;color:var(--red)">${s.gain > 0 ? '+' + s.gain.toLocaleString() + ' m' : '—'}</td>
+      <td style="font-size:0.85rem">${s.name}</td>
+      <td style="text-align:center;font-size:0.82rem;color:var(--text-muted)">${s.time}</td>
+    </tr>`;
+  }).join('');
+
+  const noteHtml = it.note
+    ? `<div class="note-box itin-note" style="background:#fff3cd;border-color:#ffc107">${it.note}</div>`
+    : '';
+
+  el.innerHTML = `
+    <div class="card-title" style="margin-bottom:0.5rem;margin-top:0.2rem">📍 Daily Itinerary</div>
+    ${noteHtml}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>KM</th><th>Climbed</th><th>Location</th><th>Time</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem">🍽️ ${it.dinner}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
 //  SELECT DAY
 // ═══════════════════════════════════════════════════════
 async function selectDay(dayIdx) {
@@ -1192,6 +1401,7 @@ async function selectDay(dayIdx) {
   });
 
   renderDayHeader(dayIdx);
+  renderItinerary(dayIdx);
 
   const loadingEl = document.getElementById('map-loading');
   if (loadingEl) loadingEl.classList.remove('hidden');
