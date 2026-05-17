@@ -1085,6 +1085,47 @@ const ITINERARY = {
       { type:'pitstop', km:95,  gain:1632, name:'O Terraço',                          time:'~1:00pm' },
       { type:'finish',  km:126, gain:2044, name:'Montebelo Aguieira Lake Resort',     time:'~2:00pm' },
     ],
+    steepSections: [
+      { n:1,  km:3.3,   len:406, peak:14.5 },
+      { n:2,  km:3.6,   len:224, peak:8.6  },
+      { n:3,  km:3.9,   len:273, peak:10.3 },
+      { n:4,  km:4.3,   len:257, peak:9.4  },
+      { n:5,  km:5.5,   len:221, peak:9.4  },
+      { n:6,  km:6.1,   len:235, peak:8.6  },
+      { n:7,  km:6.2,   len:234, peak:8.6  },
+      { n:8,  km:14.0,  len:204, peak:8.5  },
+      { n:9,  km:14.8,  len:218, peak:8.7  },
+      { n:10, km:18.5,  len:380, peak:9.9  },
+      { n:11, km:35.9,  len:232, peak:8.3  },
+      { n:12, km:36.1,  len:392, peak:10.8 },
+      { n:13, km:36.8,  len:202, peak:8.5  },
+      { n:14, km:37.2,  len:377, peak:12.7 },
+      { n:15, km:49.0,  len:407, peak:12.4 },
+      { n:16, km:49.3,  len:290, peak:9.9  },
+      { n:17, km:49.9,  len:231, peak:10.4 },
+      { n:18, km:50.0,  len:291, peak:10.4 },
+      { n:19, km:50.6,  len:395, peak:13.0 },
+      { n:20, km:51.0,  len:474, peak:14.4 },
+      { n:21, km:51.3,  len:260, peak:8.0  },
+      { n:22, km:51.9,  len:299, peak:10.3 },
+      { n:23, km:55.3,  len:201, peak:8.1  },
+      { n:24, km:57.8,  len:412, peak:11.5 },
+      { n:25, km:58.3,  len:265, peak:11.7 },
+      { n:26, km:59.1,  len:227, peak:8.2  },
+      { n:27, km:71.0,  len:321, peak:9.8  },
+      { n:28, km:82.5,  len:317, peak:9.2  },
+      { n:29, km:82.9,  len:222, peak:8.9  },
+      { n:30, km:83.2,  len:300, peak:9.0  },
+      { n:31, km:83.7,  len:362, peak:12.0 },
+      { n:32, km:100.6, len:240, peak:8.4  },
+      { n:33, km:110.6, len:298, peak:9.4  },
+      { n:34, km:113.7, len:381, peak:14.5 },
+      { n:35, km:115.1, len:318, peak:11.8 },
+      { n:36, km:115.5, len:259, peak:8.7  },
+      { n:37, km:118.8, len:259, peak:8.6  },
+      { n:38, km:119.2, len:339, peak:13.3 },
+      { n:39, km:120.2, len:318, peak:9.7  },
+    ],
   },
   3: {
     note: '⚠️ Road closed at km 93 — cycling ends at km 90. Bus transfer from km 90 to Hotel da Montanha.',
@@ -1487,6 +1528,36 @@ function renderItinerary(dayIdx) {
     ? `<div class="note-box itin-note" style="background:#fff3cd;border-color:#ffc107">${it.note}</div>`
     : '';
 
+  let steepHtml = '';
+  if (it.steepSections) {
+    const totalLen = it.steepSections.reduce((s, c) => s + c.len, 0);
+    const steepRows = it.steepSections.map(c => {
+      const bg = c.peak >= 13 ? '#fdecea' : c.peak >= 10 ? '#fff3e0' : '#fff8e8';
+      const color = c.peak >= 13 ? 'var(--red)' : c.peak >= 10 ? '#e65100' : 'inherit';
+      return `<tr style="background:${bg}">
+        <td style="text-align:center;color:var(--text-muted);font-size:0.8rem">${c.n}</td>
+        <td style="text-align:center;font-weight:600">km ${c.km.toFixed(1)}</td>
+        <td style="text-align:center">${c.len} m</td>
+        <td style="text-align:center;font-weight:700;color:${color}">${c.peak}%</td>
+      </tr>`;
+    }).join('');
+    steepHtml = `
+    <details style="margin-top:1rem">
+      <summary style="cursor:pointer;font-size:0.88rem;font-weight:600;color:var(--red);padding:0.4rem 0;list-style:none;display:flex;align-items:center;gap:0.4rem">
+        ⛰️ Steep Sections &gt;8% — ${it.steepSections.length} climbs · ${(totalLen / 1000).toFixed(2)} km total
+      </summary>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin:0.5rem 0 0.6rem">
+        Hardest zones: <strong>km 3–7</strong> (7 punchy climbs stacked early), <strong>km 49–59</strong> (9 climbs in 10 km, several hitting 13–14%), and the <strong>final 10 km (km 113–120)</strong> where you get five more when your legs are already cooked. None are long individually, but the repeated clustering is what'll hurt.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Starts at</th><th>Length</th><th>Peak</th></tr></thead>
+          <tbody>${steepRows}</tbody>
+        </table>
+      </div>
+    </details>`;
+  }
+
   el.innerHTML = `
     <div class="card-title" style="margin-bottom:0.5rem;margin-top:0.2rem">📍 Daily Itinerary</div>
     ${noteHtml}
@@ -1496,7 +1567,8 @@ function renderItinerary(dayIdx) {
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem">🍽️ ${it.dinner}</div>`;
+    <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem">🍽️ ${it.dinner}</div>
+    ${steepHtml}`;
 }
 
 // ═══════════════════════════════════════════════════════
