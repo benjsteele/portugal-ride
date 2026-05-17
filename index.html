@@ -1268,6 +1268,19 @@ const ITINERARY = {
       { n:2, km:4.4, len:133, peak:20.2, dur:'0:11', concern:'very steep'},
     ],
     descentNote: 'Two extreme descents hit in the <strong>first 5 km — before you\'ve warmed up</strong>. The km 3.2 drop (28.1%, 91m) is the second-steepest descent of the week — feather brakes and no sudden inputs. It flows straight into a 133m, 20.2% drop at km 4.4. Scrub speed before the first corner and stay loose.',
+    climbOverview: `<div class="note-box" style="margin-top:0.75rem;font-size:0.83rem">
+      <strong>📊 Climb Overview (rideable km 0–90)</strong> — <strong>1.81 km above 10% gradient</strong> across 40 sections.
+      <table style="margin-top:0.5rem;width:100%;font-size:0.8rem;border-collapse:collapse">
+        <thead><tr style="border-bottom:1px solid #e0e0e0"><th style="text-align:left;padding:0.2rem 0.5rem 0.2rem 0">Zone</th><th style="text-align:left;padding:0.2rem 0">Notable sections</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 0.3</td><td style="padding:0.2rem 0">47 m opener — straight into it</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 9.3–9.6</td><td style="padding:0.2rem 0">213 m combined — the 26.5% monster</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 23.1</td><td style="padding:0.2rem 0"><strong>252 m</strong> — longest single &gt;10% stretch of the day</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 47.5–56.1</td><td style="padding:0.2rem 0">~500 m across 13 sections — the brutal post-Beira Rio cluster</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 74.3–80.1</td><td style="padding:0.2rem 0">~700 m of repeated &gt;10% through the final climbing zone</td></tr>
+        </tbody>
+      </table>
+    </div>`,
   },
   4: {
     note: null,
@@ -1879,6 +1892,7 @@ function renderItinerary(dayIdx) {
       </table>
     </div>
     <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem">🍽️ ${it.dinner}</div>
+    ${it.climbOverview || ''}
     ${descentHtml}
     ${walkHtml}
     ${steepHtml}`;
