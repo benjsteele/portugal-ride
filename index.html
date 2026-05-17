@@ -1744,6 +1744,7 @@ function renderItinerary(dayIdx) {
     : '';
 
   let steepHtml = '';
+  let walkHtml  = '';
   if (it.steepSections) {
     const totalLen = it.steepSections.reduce((s, c) => s + c.len, 0);
     const steepRows = it.steepSections.map(c => {
@@ -1756,8 +1757,32 @@ function renderItinerary(dayIdx) {
         <td style="text-align:center;font-weight:700;color:${color}">${c.peak}%</td>
       </tr>`;
     }).join('');
+
+    const walkSections = it.steepSections.filter(c => c.peak >= 13);
+    if (walkSections.length) {
+      const walkRows = walkSections.map(c => `<tr style="background:#fdecea">
+        <td style="text-align:center;font-weight:600">km ${c.km.toFixed(1)}</td>
+        <td style="text-align:center">${c.len} m</td>
+        <td style="text-align:center;font-weight:700;color:var(--red)">${c.peak}%</td>
+        <td style="font-size:0.82rem;color:var(--text-muted)">${c.peak >= 20 ? 'Almost certainly walk' : c.peak >= 16 ? 'Very likely walk' : 'Likely walk'}</td>
+      </tr>`).join('');
+      walkHtml = `
+    <details style="margin-top:0.75rem">
+      <summary style="cursor:pointer;font-size:0.88rem;font-weight:600;color:var(--red);padding:0.4rem 0;list-style:none;display:flex;align-items:center;gap:0.4rem">
+        🚶 Walk Warnings — ${walkSections.length} section${walkSections.length > 1 ? 's' : ''} above 13%
+      </summary>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin:0.4rem 0 0.5rem">Sections above 13% gradient are steep enough that walking is sensible — especially later in the tour when legs are fatigued. No shame in it; it\'s faster than blowing up.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Starts at</th><th>Length</th><th>Peak</th><th>Advice</th></tr></thead>
+          <tbody>${walkRows}</tbody>
+        </table>
+      </div>
+    </details>`;
+    }
+
     steepHtml = `
-    <details style="margin-top:1rem">
+    <details style="margin-top:0.75rem">
       <summary style="cursor:pointer;font-size:0.88rem;font-weight:600;color:var(--red);padding:0.4rem 0;list-style:none;display:flex;align-items:center;gap:0.4rem">
         ⛰️ Steep Sections &gt;8% — ${it.steepSections.length} climbs · ${(totalLen / 1000).toFixed(2)} km total
       </summary>
@@ -1781,6 +1806,7 @@ function renderItinerary(dayIdx) {
       </table>
     </div>
     <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem">🍽️ ${it.dinner}</div>
+    ${walkHtml}
     ${steepHtml}`;
 }
 
