@@ -106,11 +106,6 @@
       letter-spacing: 0.08em;
       margin-top: 0.2rem;
     }
-    #countdown-done {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--amber-light);
-    }
 
     /* ── TRAINING SECTION ── */
     .strava-grid {
@@ -476,7 +471,13 @@
     <div class="countdown-unit"><span class="countdown-num" id="cd-min">--</span><span>Mins</span></div>
     <div class="countdown-unit"><span class="countdown-num" id="cd-sec">--</span><span>Secs</span></div>
   </div>
-  <div id="countdown-done" style="display:none;margin-top:1.2rem">🚴 Ride is underway — good luck!</div>
+  <div class="countdown-wrap" id="countdown-finish-wrap" style="display:none">
+    <span class="countdown-label">Ride finishes in</span>
+    <div class="countdown-unit"><span class="countdown-num" id="cdf-days">--</span><span>Days</span></div>
+    <div class="countdown-unit"><span class="countdown-num" id="cdf-hrs">--</span><span>Hours</span></div>
+    <div class="countdown-unit"><span class="countdown-num" id="cdf-min">--</span><span>Mins</span></div>
+    <div class="countdown-unit"><span class="countdown-num" id="cdf-sec">--</span><span>Secs</span></div>
+  </div>
 </header>
 
 <main>
@@ -2053,37 +2054,67 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ═══════════════════════════════════════════════════════
-//  COUNTDOWN TIMER — May 23, 2026 06:00 local time
+//  COUNTDOWN TIMERS
 // ═══════════════════════════════════════════════════════
 (function() {
-  const target = new Date('2026-05-25T06:00:00');
-  const wrap   = document.getElementById('countdown-wrap');
-  const done   = document.getElementById('countdown-done');
-  const els    = {
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  // ── Counter 1: ride start — Mon 25 May 06:00, freezes at 0 ──
+  const startTarget = new Date('2026-05-25T06:00:00');
+  const startEls = {
     d: document.getElementById('cd-days'),
     h: document.getElementById('cd-hrs'),
     m: document.getElementById('cd-min'),
     s: document.getElementById('cd-sec'),
   };
-
-  function pad(n) { return String(n).padStart(2, '0'); }
-
-  function tick() {
-    const diff = target - Date.now();
+  const t1 = setInterval(function() {
+    const diff = startTarget - Date.now();
     if (diff <= 0) {
-      wrap.style.display = 'none';
-      done.style.display = 'block';
+      startEls.d.textContent = '0';
+      startEls.h.textContent = '00';
+      startEls.m.textContent = '00';
+      startEls.s.textContent = '00';
+      clearInterval(t1);
       return;
     }
     const totalSec = Math.floor(diff / 1000);
-    els.d.textContent = Math.floor(totalSec / 86400);
-    els.h.textContent = pad(Math.floor((totalSec % 86400) / 3600));
-    els.m.textContent = pad(Math.floor((totalSec % 3600)  / 60));
-    els.s.textContent = pad(totalSec % 60);
-  }
+    startEls.d.textContent = Math.floor(totalSec / 86400);
+    startEls.h.textContent = pad(Math.floor((totalSec % 86400) / 3600));
+    startEls.m.textContent = pad(Math.floor((totalSec % 3600)  / 60));
+    startEls.s.textContent = pad(totalSec % 60);
+  }, 1000);
+  t1.call(this); // run immediately
 
-  tick();
-  setInterval(tick, 1000);
+  // ── Counter 2: ride finish — visible from Mon 07:00, target Sat 30 May 17:00 ──
+  const finishVisible = new Date('2026-05-25T07:00:00');
+  const finishTarget  = new Date('2026-05-30T17:00:00');
+  const finishWrap = document.getElementById('countdown-finish-wrap');
+  const finishEls  = {
+    d: document.getElementById('cdf-days'),
+    h: document.getElementById('cdf-hrs'),
+    m: document.getElementById('cdf-min'),
+    s: document.getElementById('cdf-sec'),
+  };
+  const t2 = setInterval(function() {
+    const now = Date.now();
+    if (now < finishVisible) return; // not yet visible
+    finishWrap.style.display = 'flex';
+    const diff = finishTarget - now;
+    if (diff <= 0) {
+      finishEls.d.textContent = '0';
+      finishEls.h.textContent = '00';
+      finishEls.m.textContent = '00';
+      finishEls.s.textContent = '00';
+      clearInterval(t2);
+      return;
+    }
+    const totalSec = Math.floor(diff / 1000);
+    finishEls.d.textContent = Math.floor(totalSec / 86400);
+    finishEls.h.textContent = pad(Math.floor((totalSec % 86400) / 3600));
+    finishEls.m.textContent = pad(Math.floor((totalSec % 3600)  / 60));
+    finishEls.s.textContent = pad(totalSec % 60);
+  }, 1000);
+  t2.call(this);
 })();
 </script>
 </body>
