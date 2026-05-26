@@ -1156,7 +1156,8 @@ const ITINERARY = {
       { n:35, km:97.5, len:65,  peak:9.3  },
       { n:36, km:97.7, len:50,  peak:9.0  },
     ],
-    steepNote: 'Two main clusters to watch. The <strong>km 65–67</strong> section contains the day\'s hardest gradient (22.2%) — it arrives 24 km after A Recta with no support. The <strong>km 89–98</strong> zone adds five more climbs (up to 13.1%) when your legs are already cooked in the final 10 km. <strong style="color:var(--red)">6 sections hit 13%+ (marked red)</strong> — including the 22.2% at km 65.6 and a 171m wall at 13.9% (km 66.5). Treat these as walkable.',
+    steepNote: '✅ <strong>All sections ridden — no walking needed on Day 1.</strong> Two main clusters: the <strong>km 65–67</strong> zone (hardest gradient 22.2%) and the <strong>km 89–98</strong> finishing block (up to 13.1%). 6 sections hit 13%+ — all conquered in 39°C heat.',
+    noWalkWarning: true,
     descentSections: [
       { n:1, km:65.2, len:60,  peak:15.4, dur:'0:05', concern:'steep'     },
       { n:2, km:72.2, len:63,  peak:17.6, dur:'0:05', concern:'steep'     },
@@ -1228,7 +1229,8 @@ const ITINERARY = {
       { n:38, km:119.2, len:339, peak:13.3 },
       { n:39, km:120.2, len:318, peak:9.7  },
     ],
-    steepNote: 'Hardest zones: <strong>km 3–7</strong> (7 punchy climbs stacked early), <strong>km 49–59</strong> (9 climbs in 10 km, several hitting 13–14%), and the <strong>final section km 113–120</strong> where you get five more when your legs are already cooked. None are long individually, but the repeated clustering is what\'ll hurt. <strong style="color:var(--red)">3 sections hit 13%+ (marked red)</strong> — km 51.0 (14.4%), km 113.7 (14.5%), km 119.2 (13.3%). Expect to walk these.',
+    steepNote: '✅ <strong>All sections ridden — no walking needed on Day 2.</strong> Hardest zones: <strong>km 3–7</strong> (7 punchy climbs stacked early), <strong>km 49–59</strong> (9 climbs in 10 km, several hitting 13–14%), and the <strong>final km 113–120</strong> block with five more on cooked legs. 3 sections hit 13%+ — km 51.0 (14.4%), km 113.7 (14.5%), km 119.2 (13.3%) — all ridden.',
+    noWalkWarning: true,
     descentSections: [
       { n:1, km:31.6,  len:82,  peak:19.4, dur:'0:07', concern:'steep'     },
       { n:2, km:32.3,  len:104, peak:26.0, dur:'0:09', concern:'extreme'   },
@@ -1911,15 +1913,16 @@ function renderItinerary(dayIdx) {
       </tr>`;
     }).join('');
 
-    const walkSections = it.steepSections.filter(c => c.peak >= 13);
-    if (walkSections.length) {
-      const walkRows = walkSections.map(c => `<tr style="background:#fdecea">
-        <td style="text-align:center;font-weight:600">km ${c.km.toFixed(1)}</td>
-        <td style="text-align:center">${c.len} m</td>
-        <td style="text-align:center;font-weight:700;color:var(--red)">${c.peak}%</td>
-        <td style="font-size:0.82rem;color:var(--text-muted)">${c.peak >= 20 ? 'Almost certainly walk' : c.peak >= 16 ? 'Very likely walk' : 'Likely walk'}</td>
-      </tr>`).join('');
-      walkHtml = `
+    if (!it.noWalkWarning) {
+      const walkSections = it.steepSections.filter(c => c.peak >= 13);
+      if (walkSections.length) {
+        const walkRows = walkSections.map(c => `<tr style="background:#fdecea">
+          <td style="text-align:center;font-weight:600">km ${c.km.toFixed(1)}</td>
+          <td style="text-align:center">${c.len} m</td>
+          <td style="text-align:center;font-weight:700;color:var(--red)">${c.peak}%</td>
+          <td style="font-size:0.82rem;color:var(--text-muted)">${c.peak >= 20 ? 'Almost certainly walk' : c.peak >= 16 ? 'Very likely walk' : 'Likely walk'}</td>
+        </tr>`).join('');
+        walkHtml = `
     <details style="margin-top:0.75rem">
       <summary style="cursor:pointer;font-size:0.88rem;font-weight:600;color:var(--red);padding:0.4rem 0;list-style:none;display:flex;align-items:center;gap:0.4rem">
         🚶 Walk Warnings — ${walkSections.length} section${walkSections.length > 1 ? 's' : ''} above 13%
@@ -1932,6 +1935,7 @@ function renderItinerary(dayIdx) {
         </table>
       </div>
     </details>`;
+      }
     }
 
     steepHtml = `
@@ -2079,7 +2083,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Build UI
   buildTabs();
   onSliderChange();
-  selectDay(1);
+  selectDay(2);
 
   // Guarantee pace calculator starts collapsed regardless of browser state
   document.getElementById('pace-details').open = false;
