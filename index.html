@@ -487,6 +487,13 @@
     <summary><span class="card-title" style="margin:0">📝 Daily Updates</span></summary>
     <div class="card-body">
       <div class="note-box" style="font-size:0.9rem;line-height:1.6;margin-bottom:0.75rem">
+        <p style="font-weight:700;margin-bottom:0.5rem">Day 3</p>
+        <p>Cycled with Niall Leyden down past the Aguieira dam — fantastic scenery and banter. After 45 km we hit the big climb. Flew up it after a pit stop of Coke and cake.</p>
+        <p style="margin-top:0.6rem">Met Chris Hunt from Temple and Scotty from Newry. Paced the climbs well and it was manageable. Charged down the other side, stopped in a random pub for ice lollies — 34 degrees out there.</p>
+        <p style="margin-top:0.6rem">That was the big day. Tomorrow is longer at 147 km but the hard part is done.</p>
+        <p style="margin-top:0.6rem">Did the last stretch with Ian, Dave and Cormac — Cormac is an ex-Olympian with some very entertaining stories. Fantastic day. Recovery, then pool. Noelle reckons I've earned a non-zero beer 🍺</p>
+      </div>
+      <div class="note-box" style="font-size:0.9rem;line-height:1.6;margin-bottom:0.75rem">
         <p style="font-weight:700;margin-bottom:0.5rem">Day 2</p>
         <p>Today I spent a good chunk of the day with Niall Leyden and John Hunt. Niall and I got each other over the finish — that's what this ride is all about.</p>
         <p style="margin-top:0.6rem">We got up early to beat the heat and rode with real discipline this morning, keeping the pace steady to stay fresh. It's standing to us now.</p>
@@ -1337,7 +1344,8 @@ const ITINERARY = {
       { n:61, km:82.1, len:68,  peak:9.1  },
       { n:62, km:83.8, len:50,  peak:9.0  },
     ],
-    steepNote: 'Day 3 is the hardest climbing day on the tour. A 20.7% ramp hits at <strong>km 0.3 — no warmup</strong>. The <strong>km 9.3 pitch (26.5%)</strong> is the steepest you\'ll ride all week. A 385m wall at km 23.1 grades 20.3%. Then <strong>km 47–60 delivers 13 consecutive climbs</strong> — the hardest sustained block of the entire tour — starting just 1 km after Beira Rio. The <strong>km 74–83 cluster (21.8% peak)</strong> hits when you\'re already deep in the red. <strong style="color:var(--red)">9 sections hit 13%+ (marked red) — most will need to be walked.</strong> Sections after km 90 not shown — bus transfer.',
+    steepNote: '✅ <strong>Almost entirely ridden — only the km 9.3 pitch (26.5%) required a walk.</strong> The 20.7% ramp at km 0.3 was conquered with no warmup. The km 47–60 block of 13 consecutive climbs was ridden through after fuelling at Beira Rio. The km 74–83 cluster (21.8% peak) was paced well. 9 sections hit 13%+ — all ridden except km 9.3. Sections after km 90 not shown — bus transfer.',
+    noWalkWarning: true,
     descentSections: [
       { n:1, km:3.2, len:91,  peak:28.1, dur:'0:08', concern:'extreme'   },
       { n:2, km:4.4, len:133, peak:20.2, dur:'0:11', concern:'very steep'},
@@ -2092,7 +2100,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Build UI
   buildTabs();
   onSliderChange();
-  selectDay(2);
+  selectDay(3);
 
   // Guarantee pace calculator starts collapsed regardless of browser state
   document.getElementById('pace-details').open = false;
