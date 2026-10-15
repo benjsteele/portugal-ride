@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>N2 Portugal 2026 – Ride Archive</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark: #1b4332;
+      --green: #2d6a4f;
+      --green-light: #52b788;
+      --amber: #f77f00;
+      --amber-light: #ffc857;
+      --red: #c1121f;
+      --bg: #f0f4f1;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --text-muted: #555;
+      --border: #d0ddd5;
+      --radius: 10px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 60%, var(--green-light) 100%);
+      color: white;
+      padding: 2rem 1.5rem 1.5rem;
+      text-align: center;
+    }
+    header h1 {
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--amber-light);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    header p { opacity: 0.88; font-size: 0.95rem; margin-top: 0.3rem; }
+    .header-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 0.35rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* ── COUNTDOWN ── */
+    .countdown-wrap {
+      margin-top: 1.4rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+      flex-wrap: nowrap;
+      align-items: center;
+      white-space: nowrap;
+    }
+    .countdown-label {
+      font-size: 0.78rem;
+      opacity: 0.75;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-right: 0.3rem;
+      flex-shrink: 0;
+    }
+    .countdown-unit {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 0.4rem 0.75rem;
+      text-align: center;
+      min-width: 56px;
+      flex-shrink: 0;
+    }
+    .countdown-num {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--amber-light);
+      line-height: 1;
+    }
+    .countdown-unit span:last-child {
+      display: block;
+      font-size: 0.65rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 0.2rem;
+    }
+
+    /* ── TRAINING SECTION ── */
+    .strava-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .strava-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .strava-card-header {
+      background: #fc4c02;
+      color: white;
+      padding: 0.55rem 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .strava-card-body {
+      padding: 0.75rem 0.9rem;
+      font-size: 0.85rem;
+    }
+    .strava-card-body .s-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.35rem;
+      color: var(--text);
+    }
+    .strava-stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.6rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .strava-stats strong { color: var(--text); }
+    .strava-link {
+      display: inline-block;
+      background: #fc4c02;
+      color: white;
+      border-radius: 5px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .strava-link:hover { background: #e03e00; }
+    .strava-embeds {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .strava-embeds iframe {
+      border-radius: 8px;
+      display: block;
+    }
+
+    /* ── MAIN WRAPPER ── */
+    main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--green);
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── SUMMARY TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: var(--green-dark); color: white; padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; }
+    th:first-child { border-radius: 6px 0 0 6px; }
+    th:last-child  { border-radius: 0 6px 6px 0; }
+    td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f6faf7; }
+    .day-num { font-weight: 700; color: var(--green); }
+    .eta-cell { font-weight: 700; color: var(--amber); }
+    .speed-cell { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* ── DAY TABS ── */
+    .tabs {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .tab-btn {
+      padding: 0.5rem 1.1rem;
+      border: 2px solid var(--border);
+      border-radius: 6px 6px 0 0;
+      background: var(--card);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { border-color: var(--green-light); color: var(--green); }
+    .tab-btn.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+      border-bottom-color: var(--green);
+    }
+
+    /* ── DAY VIEW ── */
+    .day-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .day-badge {
+      background: var(--amber);
+      color: white;
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 4px;
+    }
+    .day-route { font-size: 1.15rem; font-weight: 700; }
+    .day-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-left: auto; }
+    .chip {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .chip.climb { color: var(--red); border-color: #e9c0c2; background: #fff5f5; }
+    .chip.dist  { color: var(--green); border-color: #b7dfc5; background: #f0faf4; }
+    .chip.day-time { color: var(--amber); border-color: #fce1b0; background: #fffaf0; }
+    a.chip.gpx-download {
+      color: #1565c0; border-color: #bbdefb; background: #e3f2fd;
+      text-decoration: none; cursor: pointer;
+    }
+    a.chip.gpx-download:hover { background: #bbdefb; }
+
+    /* ── MAP + CHART GRID ── */
+    .day-view {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    #day-itinerary { margin-top: 1.1rem; }
+    #day-itinerary .itin-note {
+      font-size: 0.8rem; padding: 0.45rem 0.8rem;
+      border-radius: 6px; margin-bottom: 0.6rem;
+    }
+    .itin-type-depart  { background:#e8f5e9; }
+    .itin-type-pitstop { background:#fff8e8; }
+    .itin-type-bus     { background:#e3f2fd; }
+    .itin-type-finish  { background:#fdecea; }
+    .itin-badge {
+      display:inline-block; padding:0.1rem 0.5rem; border-radius:12px;
+      font-size:0.72rem; font-weight:700; white-space:nowrap;
+    }
+    .badge-depart  { background:#c8e6c9; color:#1b5e20; }
+    .badge-pitstop { background:#fce1b0; color:#7c4700; }
+    .badge-bus     { background:#bbdefb; color:#0d47a1; }
+    .badge-finish  { background:#ffcdd2; color:#b71c1c; }
+    @media (max-width: 780px) {
+      .day-view { grid-template-columns: 1fr; }
+    }
+    #map { height: 420px; border-radius: 8px; z-index: 1; }
+    .chart-wrap { height: 420px; position: relative; overflow-x: auto; overflow-y: hidden; }
+    .chart-wrap canvas { border-radius: 8px; min-width: 100%; }
+
+    /* ── PACE CALCULATOR ── */
+    .sliders {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 560px) { .sliders { grid-template-columns: 1fr; } }
+    .slider-group label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .slider-val { font-size: 1.1rem; color: var(--amber); font-weight: 800; }
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--amber);
+      cursor: pointer;
+      height: 6px;
+    }
+    .slider-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    #pace-table th { background: var(--green-dark); }
+    #pace-table th.t-climb,
+    #pace-table th.t-flat,
+    #pace-table th.t-desc,
+    #pace-table th.t-total { color: white; font-weight: 600; }
+    #pwr-box {
+      display: flex; align-items: center; gap: 1.2rem;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.65rem 1.1rem; margin-top: 0.75rem;
+    }
+    #pwr-value { font-size: 1.6rem; font-weight: 800; color: var(--amber); }
+    #pwr-label { font-size: 0.78rem; color: var(--text-muted); }
+    #pwr-category { font-size: 0.88rem; font-weight: 600; }
+    .t-climb { color: #c1121f; }
+    .t-flat  { color: #2d6a4f; }
+    .t-desc  { color: #1565c0; }
+    .t-total { font-weight: 800; color: var(--amber); }
+
+    /* ── LEAFLET ROUTING MACHINE — hide instructions panel ── */
+    #map-loading {
+      position: absolute; inset: 0; background: rgba(255,255,255,0.7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; color: var(--text-muted); border-radius: 8px;
+      pointer-events: none; z-index: 500;
+      transition: opacity 0.3s;
+    }
+    #map-loading.hidden { opacity: 0; }
+    #map-container { position: relative; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      padding: 1.5rem;
+      margin-top: 0.5rem;
+    }
+    .note-box {
+      background: #fff8e8;
+      border: 1px solid #fce1b0;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      color: #7a5200;
+      margin-bottom: 1rem;
+    }
+    .note-box.note-neutral {
+      background: var(--bg);
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+
+    /* ── COLLAPSIBLE CARDS ── */
+    details.card { padding: 0; }
+    details.card > summary {
+      padding: 1.25rem;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+    details.card > summary::-webkit-details-marker { display: none; }
+    details.card > summary::after {
+      content: '▸';
+      font-size: 1rem;
+      color: var(--green);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+    }
+    details.card[open] > summary::after { transform: rotate(90deg); }
+    details.card .card-body { padding: 0 1.25rem 1.25rem; }
+    .intensity-badge {
+      display: inline-block; border-radius: 12px;
+      padding: 0.25rem 0.8rem; font-size: 0.8rem; font-weight: 700;
+      margin-bottom: 0.75rem; margin-top: 0.25rem;
+    }
+    .badge-red    { background: #fdecea; color: #b71c1c; border: 1px solid #f5c6cb; }
+    .badge-yellow { background: #fff8e1; color: #7a5200; border: 1px solid #ffe082; }
+    .badge-green  { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+    .section-gap  { margin-top: 1.5rem; }
+    .mistakes-list { padding-left: 1.2rem; margin-top: 0.4rem; }
+    .mistakes-list li { margin-bottom: 0.35rem; font-size: 0.88rem; }
+
+    /* ── PORTUGAL FLAG ACCENT ── */
+    .flag-strip { height: 4px; background: linear-gradient(to right, #006600 40%, #ff0000 40%); }
+
+    /* ── SPONSOR BAR ── */
+    #sponsor-bar {
+      background: linear-gradient(135deg, #7b3f00 0%, #c1600a 50%, #f77f00 100%);
+      color: white;
+      text-align: center;
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    #sponsor-bar p {
+      font-size: 0.95rem;
+      font-weight: 600;
+      opacity: 0.97;
+    }
+    .sponsor-btn {
+      display: inline-block;
+      background: white;
+      color: #c1600a;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 0.45rem 1.2rem;
+      border-radius: 24px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .sponsor-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+  </style>
+</head>
+<body>
+<div class="flag-strip"></div>
+
+<div style="background:#1b5e20;color:#fff;text-align:center;padding:0.55rem 1rem;font-size:0.9rem">
+  🏅 This is the <strong>2026 ride archive</strong> — completed, 738 km done. &nbsp;
+  <a href="index.html" style="color:#fff;font-weight:700;text-decoration:underline">View the 2027 ride →</a>
+</div>
+
+<div id="sponsor-bar">
+  <p>❤️ Riding the N2 for charity &mdash; every donation makes a difference!</p>
+  <a class="sponsor-btn" href="https://eventmaster.ie/fundraising/pages/BS70427309" target="_blank" rel="noopener noreferrer">Donate to the Cause</a>
+</div>
+
+<header>
+  <h1>🇵🇹 N2 Portugal — Cycling Route</h1>
+  <p>Chaves to Faro &nbsp;·&nbsp; May 25–30, 2026</p>
+  <div class="header-stats">
+    <span class="stat-pill">734 km total</span>
+    <span class="stat-pill">11,536 m total climbing</span>
+    <span class="stat-pill">6 stages</span>
+  </div>
+  <div class="countdown-wrap" style="justify-content:center">
+    <span class="countdown-label" style="font-size:1rem">✅ Completed 25–30 May 2026 &nbsp;·&nbsp; 738 km &nbsp;·&nbsp; every stage ridden</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── DAILY UPDATE ── -->
+  <details class="card" open>
+    <summary><span class="card-title" style="margin:0">📝 Daily Updates</span></summary>
+    <div class="card-body">
+      <div class="note-box" style="font-size:0.9rem;line-height:1.6;margin-bottom:0.75rem">
+        <p style="font-weight:700;margin-bottom:0.5rem">Day 6 — Faro 🏁</p>
+        <p>I won't deny it was tough. But I ran with the top group — Mike, Karen, Niall Leyden, Michael B and Aoife. Really enjoyed the challenge. The hills come at a time when your legs are pure cooked.</p>
+        <p style="margin-top:0.6rem">Best moment of the day: falling into a shop for ice creams and having just enough to cover them before a big 19% climb. The euphoria at 738 km was indescribable. Leydo and I chilled out and watched a biker group roll in. 🍦</p>
+      </div>
+      <div class="note-box" style="font-size:0.9rem;line-height:1.6;margin-bottom:0.75rem">
+        <p style="font-weight:700;margin-bottom:0.5rem">What's Next 🔥</p>
+        <p>I've decided to train for the <strong>Mallorca 312</strong> — a big step up, but I need the next fire under me.</p>
+        <p style="margin-top:0.6rem">A massive thank you to all the sponsors (I covered the costs of the trip myself). The stories and the impact on suicide were really powerful — the most important thing we can do is listen.</p>
+        <p style="font-weight:600;margin-top:0.75rem;margin-bottom:0.4rem">Top lessons learned:</p>
+        <ol style="margin:0;padding-left:1.2rem;line-height:1.8">
+          <li>Always run based on heart rate.</li>
+          <li>In 44°C heat, never turn down a water stop.</li>
+          <li>Try and race to a diet plan.</li>
+          <li>A towel burrito is amazing for drying clothes.</li>
+          <li>Eat even when you're not hungry — by the time it catches you it's too late.</li>
+          <li>Enjoy every day on the bike! 🚴</li>
+          <li>Chamois cream is mandatory.</li>
+          <li>Spare gloves for big multi-day cycles are great.</li>
+        </ol>
+      </div>
+      <div class="note-box" style="font-size:0.9rem;line-height:1.6;margin-bottom:0.75rem">
+        <p style="font-weight:700;margin-bottom:0.5rem">Day 5</p>
+        <p>Unleashed the power — 27 km/h average. Out cycling with Ian, Stephen Naughton, Niall and a few others. Amazing day, did a PB for 100 km in 2026.</p>
+        <p style="margin-top:0.6rem">Hazy start to the day, rolling fields, lots of agriculture and a real feel for the rural middle. The people are friendly and the group are buzzing after tackling the heat wave.</p>
+        <p style="margin-top:0.6rem">141 km now to the finish line. I've drank gallons of Coca-Cola 😂🥵</p>
+      </div>
+      <div class="note-box" style="font-size:0.9rem;line-height:1.6;margin-bottom:0.75rem">
+        <p style="font-weight:700;margin-bottom:0.5rem">Day 4</p>
+        <p>Hilly enough start. Leydo and I ended up in a group — rode with Ian, Dave and Niall. Will and Cormac our captains dragged us in. Loving the zone two spins.</p>
+        <p style="margin-top:0.6rem">447 km done — past the halfway point. Big climbs conquered. Main enemy is the heat at 44°C today.</p>
+        <p style="margin-top:0.6rem">Faro is in sight. Big day tomorrow — 147 km to our last pit stop. Feet swell in the heat — throwing them up against the wall is fabulous for recovery. Off to the pool now for a burger 🍔</p>
+      </div>
+      <div class="note-box" style="font-size:0.9rem;line-height:1.6;margin-bottom:0.75rem">
+        <p style="font-weight:700;margin-bottom:0.5rem">Day 3</p>
+        <p>Cycled with Niall Leyden down past the Aguieira dam — fantastic scenery and banter. After 45 km we hit the big climb. Flew up it after a pit stop of Coke and cake.</p>
+        <p style="margin-top:0.6rem">Met Chris Hunt from Temple and Scotty from Newry. Paced the climbs well and it was manageable. Charged down the other side, stopped in a random pub for ice lollies — 34 degrees out there.</p>
+        <p style="margin-top:0.6rem">That was the big day. Tomorrow is longer at 123 km but the hard part is done.</p>
+        <p style="margin-top:0.6rem">Did the last stretch with Ian, Dave and Cormac — Cormac is an ex-Olympian with some very entertaining stories. Fantastic day. Recovery, then pool. Noelle reckons I've earned a non-zero beer 🍺</p>
+      </div>
+      <div class="note-box" style="font-size:0.9rem;line-height:1.6;margin-bottom:0.75rem">
+        <p style="font-weight:700;margin-bottom:0.5rem">Day 2</p>
+        <p>Today I spent a good chunk of the day with Niall Leyden and John Hunt. Niall and I got each other over the finish — that's what this ride is all about.</p>
+        <p style="margin-top:0.6rem">We got up early to beat the heat and rode with real discipline this morning, keeping the pace steady to stay fresh. It's standing to us now.</p>
+        <p style="margin-top:0.6rem">I met some fellow northerners today, which was a nice lift. Our first stop at 46 km was a spread laid out on tables in front of a tiny country village store. The food was most needed and absolutely amazing. By the time we reached the second stop at a place called O Terraço, everyone was cooked. People were throwing water over themselves just to cool off.</p>
+        <p style="margin-top:0.6rem">The dam at Montebelo Aguieira looked fabulous.</p>
+        <p style="margin-top:0.6rem">Feet up tonight. Tomorrow will be our hilliest day.</p>
+      </div>
+      <div class="note-box" style="font-size:0.9rem;line-height:1.6">
+        <p style="font-weight:700;margin-bottom:0.5rem">Day 1</p>
+        <p>Day 1 was amazing — we saw the Douro valley and conquered the route in 39 degrees heat. Great representation from Galway with 10 of Bears and Gears gang, such a bunch of solid humans.</p>
+        <p style="margin-top:0.6rem">The stories that I heard climbing the hills of people impacted by suicide moved me. Always take time to listen to people.</p>
+        <p style="margin-top:0.6rem">6:30am start tomorrow as we set off for the Aguieira dam. 🌅</p>
+      </div>
+    </div>
+  </details>
+
+  <!-- ── HOLIDAY PHOTOS + WHERE IS BEN ── -->
+  <details class="card" open>
+    <summary><span class="card-title" style="margin:0">📸 Holiday Photos &amp; 📍 Where is Ben?</span></summary>
+    <div class="card-body">
+      <div style="display:flex;gap:1rem;flex-wrap:wrap">
+        <div class="note-box" style="flex:1;min-width:200px;text-align:center;font-size:0.9rem">
+          <p style="margin-bottom:0.75rem;font-weight:600">Holiday Photos</p>
+          <p style="margin-bottom:0.75rem;font-size:0.82rem;color:var(--text-muted)">Photos from the ride will appear here as the week progresses.</p>
+          <a href="https://photos.app.goo.gl/pyq9Vs8bpzCLdHV26" target="_blank" rel="noopener"
+             style="display:inline-block;background:var(--red);color:#fff;padding:0.6rem 1.4rem;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.9rem">
+            📷 Open Album →
+          </a>
+        </div>
+        <div class="note-box" style="flex:1;min-width:200px;text-align:center;font-size:0.9rem">
+          <p style="margin-bottom:0.75rem;font-weight:600">Where is Ben?</p>
+          <p style="margin-bottom:0.75rem;font-size:0.82rem;color:var(--text-muted)">Live location updated during the ride.</p>
+          <a href="https://maps.app.goo.gl/tch3T7f8XDfmBjmcA" target="_blank" rel="noopener"
+             style="display:inline-block;background:var(--red);color:#fff;padding:0.6rem 1.4rem;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.9rem">
+            📍 Open Map →
+          </a>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- ── TRAINING RIDES ── -->
+  <details class="card">
+    <summary><span class="card-title" style="margin:0">🚴 Training Rides</span></summary>
+    <div class="card-body">
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem">
+        Training rides logged on Strava in the build-up to the N2.
+      </p>
+      <div class="strava-embeds">
+        <iframe height='160' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/2024860/activity-summary/b13f83bb98407a9e802ad1732d66b13cc713566e'></iframe>
+        <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/2024860/latest-rides/b13f83bb98407a9e802ad1732d66b13cc713566e'></iframe>
+      </div>
+    </div>
+  </details>
+
+  <!-- ── SUMMARY TABLE ── -->
+  <details class="card" open>
+    <summary><span class="card-title" style="margin:0">Route Overview</span></summary>
+    <div class="card-body">
+      <div class="table-wrap">
+        <table id="summary-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Stage</th>
+              <th>Distance</th>
+              <th>Elevation</th>
+              <th>Est. Time</th>
+              <th>Avg Speed</th>
+            </tr>
+          </thead>
+          <tbody id="summary-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <!-- ── DAY EXPLORER ── -->
+  <details class="card" open id="day-explorer-card">
+    <summary><span class="card-title" style="margin:0">Day Explorer</span></summary>
+    <div class="card-body">
+      <div class="tabs" id="day-tabs"></div>
+      <div id="day-header-bar"></div>
+      <div class="note-box note-neutral" style="margin-bottom:0.9rem;font-size:0.8rem">
+        🗺️ <strong>Official GPX routes</strong> — maps and elevation profiles are drawn from the actual event GPX files. Download the GPX for each day using the link in the day header.
+      </div>
+      <div class="day-view">
+        <div id="map-container"><div id="map"></div><div id="map-loading">Loading GPX route…</div></div>
+        <div class="chart-wrap">
+          <canvas id="elevation-chart"></canvas>
+        </div>
+      </div>
+      <div id="day-itinerary"></div>
+    </div>
+  </details>
+
+  <!-- ── PACE CALCULATOR ── -->
+  <details class="card" id="pace-details">
+    <summary><span class="card-title" style="margin:0">Pace Calculator</span></summary>
+    <div class="card-body">
+      <div class="note-box note-neutral">
+        Estimates assume FTP-effort riding throughout with no stops. Descents fixed at 40 km/h.
+        Adjust your FTP and weight to see how pace changes for each stage.
+      </div>
+      <div class="sliders">
+        <div class="slider-group">
+          <label>FTP <span class="slider-val"><span id="ftp-display">130</span> W</span></label>
+          <input type="range" id="ftp-slider" min="100" max="400" value="130" step="5">
+          <div class="slider-sub">Functional Threshold Power</div>
+        </div>
+        <div class="slider-group">
+          <label>Weight <span class="slider-val"><span id="weight-display">97</span> kg</span></label>
+          <input type="range" id="weight-slider" min="50" max="130" value="97" step="1">
+          <div class="slider-sub">Rider + kit weight</div>
+        </div>
+      </div>
+      <div id="pwr-box">
+        <div>
+          <div id="pwr-value">1.34 W/kg</div>
+          <div id="pwr-label">Power-to-weight ratio (FTP)</div>
+        </div>
+        <div id="pwr-category">Recreational</div>
+      </div>
+      <div class="table-wrap">
+        <table id="pace-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Stage</th>
+              <th class="t-climb">Climb time</th>
+              <th class="t-flat">Flat time</th>
+              <th class="t-desc">Descent time</th>
+              <th class="t-total">Total</th>
+              <th>Avg speed</th>
+            </tr>
+          </thead>
+          <tbody id="pace-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+<details class="card">
+  <summary><span class="card-title" style="margin:0">🍽️ Nutrition Plan</span></summary>
+  <div class="card-body">
+
+    <!-- RED: Days 1, 2, 3 -->
+    <div class="section-gap">
+      <span class="intensity-badge badge-red">🔴 High Intensity — Days 1, 2, 3 &amp; 5 &nbsp;·&nbsp; 60–75 g carbs/hour</span>
+      <div class="note-box" style="margin-bottom:0.75rem">
+        Prioritise simple sugars. Avoid heavy fibre before and during riding.
+        <strong>Why white rice/pasta?</strong> Brown rice and whole grains digest too slowly
+        during high-intensity blocks. Save the fibre for rest days.
+      </div>
+      <div class="note-box note-neutral" style="margin-bottom:0.75rem;font-size:0.83rem">
+        <strong>📍 Pre-climb rule (all days):</strong> For any section above 15%, take a gel 10–15 min before it arrives — not at the bottom. On the bike, that means eating when you see the cluster approaching on your GPS, not when your legs start to burn.
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Meal</th><th>Time</th><th>Food</th><th>Carbs (approx.)</th></tr></thead>
+          <tbody>
+            <tr><td>Dinner (night before)</td><td>7–8 PM</td><td>Large bowl white rice/pasta + olive oil + grilled chicken or risotto. No heavy fibre.</td><td>100–120 g</td></tr>
+            <tr><td>Breakfast</td><td>2–3 h before</td><td>Oatmeal (80 g dry) + honey (2 tbsp) + 1 banana + black coffee + pinch of salt</td><td>80–100 g</td></tr>
+            <tr><td>On-bike (per hour)</td><td>Every 30–40 min</td><td>PF30 Chews (30g) every 30 min on flats · PF30 Gel (30g) on climbs · wine gummies between · carb+electrolyte mix in bottle. ~65 g/hr target.</td><td>65 g</td></tr>
+            <tr><td>Lunch (cafe stop)</td><td>3–4 h in</td><td>White bread sandwich (tuna or ham, no salad) + 1 Coke + 1 pastel de nata</td><td>60–80 g</td></tr>
+            <tr><td>Post-ride</td><td>Within 30 min</td><td>500 ml chocolate milk OR recovery shake (3:1 carbs:protein)</td><td>40–50 g</td></tr>
+            <tr><td>Dinner</td><td>Within 2 h</td><td>White rice or mashed potatoes + lean protein + cooked carrots (low fibre)</td><td>80–100 g</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PIT STOP GUIDE: Days 1-3 -->
+    <div class="section-gap">
+      <div class="card-title" style="font-size:0.9rem;margin-bottom:0.6rem">⛽ Pit Stop Fuel Guide — Days 1, 2, 3 &amp; 5</div>
+
+      <div style="margin-bottom:1rem">
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 1 · Chaves → Lamego · 100 km · +1,817 m</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>A Recta</strong></td><td>41 km</td><td>+710 m</td><td>Sandwich (tuna or ham) + Coke + pastel de nata. Top up both bottles. ⚠️ The hardest section of the day (km 65–67, 22.2%) is still 24 km ahead — take a gel at km 60, before you hit it.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>Santa Marta</strong></td><td>80 km</td><td>+1,289 m</td><td>2 gels + 1 bar + water refill. Five climbs between km 89–98 (up to 13.1%) are coming. Take both gels now, not at the top. Quick stop.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Lamego</strong></td><td>100 km</td><td>+1,817 m</td><td>500 ml chocolate milk within 30 min. Big white-rice dinner at 7:30pm.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 2 · Lamego → Aguieira · 126 km · +2,044 m</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>Boémio</strong></td><td>56 km</td><td>+1,041 m</td><td>Tosta mista or sandwich + orange juice + pastel de nata. Fill bottles. The km 49–59 cluster (9 climbs) hit you just before this stop — you earned this.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>O Terraço</strong></td><td>95 km</td><td>+1,632 m</td><td>2 gels + bar. Five more steep climbs at km 113–120 still to come. Eat both gels here, not on the climb. Quick stop.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Aguieira</strong></td><td>126 km</td><td>+2,044 m</td><td>Recovery shake immediately. Rest well — Day 3 is the hardest.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div>
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 3 · Aguieira → Pedrógão · 96 km · +2,105 m &nbsp;<span style="font-weight:400;color:var(--text-muted)">(bus from km 90)</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fdecea"><td><strong>⚡ Departure note</strong></td><td>0 km</td><td>+0 m</td><td>Start eating from the gun — no warmup window. A 20.7% ramp hits at km 0.3 and the route's steepest climb (26.5%) arrives at km 9.3. Take a gel within the first 10 minutes.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>Beira Rio</strong></td><td>46 km</td><td>+916 m</td><td>Biggest real-food stop of the week. Soup + sandwich + take 2 gels from your jersey. The 13-climb km 47–60 cluster starts 1 km after you leave — the hardest sustained section of the entire tour. Do not leave underfuelled.</td></tr>
+            <tr style="background:#e3f2fd"><td><strong>Bus transfer</strong></td><td>90 km</td><td>+1,971 m</td><td>Have a gel before boarding. Eat a bar on the bus. The brutal km 74–83 cluster (21.8% peak) just finished — you've done the hardest day on the tour.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Hotel da Montanha</strong></td><td>96 km</td><td>+2,105 m</td><td>Recovery shake. Steepest day done. Dinner 7:30pm.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 5 · Montargil → Ervidel/Beja · 141 km · +2,105 m &nbsp;<span style="font-weight:400;color:var(--text-muted)">(bus from Café Imperial)</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>Café Rotunda</strong></td><td>58 km</td><td>+924 m</td><td>Sandwich or tosta + Coke. Longest day — 83 km still ahead. Take a gel before leaving: a 259m climb at 15.3% arrives at km 70.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>Piknic</strong></td><td>91 km</td><td>+1,489 m</td><td>Real food stop — soup or local plate if available. 50 km to go. Terrain is gentle from here but don't reduce fuelling rate — 50 km in Alentejo heat still demands 50 g carbs/hr minimum.</td></tr>
+            <tr style="background:#e3f2fd"><td><strong>Café Imperial (bus)</strong></td><td>141 km</td><td>+2,105 m</td><td>Walk 400m back to bike storage. Drink on the bus. BejaParque dinner 7:30pm.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- YELLOW: Days 4 & 6 -->
+    <div class="section-gap">
+      <span class="intensity-badge badge-yellow">🟡 Moderate Intensity — Days 4 &amp; 6 &nbsp;·&nbsp; 50–65 g carbs/hour</span>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Meal</th><th>Time</th><th>Food</th><th>Carbs (approx.)</th></tr></thead>
+          <tbody>
+            <tr><td>Dinner (night before)</td><td>7–8 PM</td><td>Regular pasta or potato-based meal. You can add a small side salad.</td><td>80–100 g</td></tr>
+            <tr><td>Breakfast</td><td>2 h before</td><td>2 slices white toast with jam + 1 banana + 1 scrambled egg (optional)</td><td>50–60 g</td></tr>
+            <tr><td>On-bike (per hour)</td><td>Every 40–60 min</td><td>PF30 Chews (30g) every 40 min · wine gummies between · carb+electrolyte mix in bottle. Gels for steeper sections only. ~50 g/hr target.</td><td>50–65 g</td></tr>
+            <tr><td>Lunch (cafe stop)</td><td>Mid-ride</td><td>Tosta mista (grilled ham &amp; cheese toastie) + orange juice + a piece of fruit</td><td>50–70 g</td></tr>
+            <tr><td>Post-ride</td><td>Within 30 min</td><td>1 banana + handful of nuts + water. Recovery shake optional.</td><td>20–30 g</td></tr>
+            <tr><td>Dinner</td><td>Evening</td><td>Grilled fish or pork + roasted potatoes + sautéed greens (broccoli or spinach OK)</td><td>70–90 g</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PIT STOP GUIDE: Days 4-6 -->
+    <div class="section-gap">
+      <div class="card-title" style="font-size:0.9rem;margin-bottom:0.6rem">⛽ Pit Stop Fuel Guide — Days 4 &amp; 6</div>
+
+      <div style="margin-bottom:1rem">
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 4 · Pedrógão → Montargil · 123 km · +1,679 m</div>
+        <div style="font-size:0.82rem;color:var(--red);margin-bottom:0.5rem;font-weight:600">⚠️ All major climbing happens before the first café stop (km 65). Eat packed gels and chews every 30–40 min from the start — do not wait for café support.</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>Café Três Coroas</strong></td><td>65 km</td><td>+1,137 m</td><td>Tosta mista + orange juice. You've just survived the hard part — 31 steep sections including an 18.2% opening ramp and 20.6% wall (km 50) are behind you. Refuel properly. Moderate terrain from here.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>Picnic Area</strong></td><td>109 km</td><td>+1,542 m</td><td>1 bar + 1 gel + water. The km 82 cluster (14.8%) is just behind you. 14 km to go with only one small kick at km 121. Comfortable finish.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Montargil</strong></td><td>123 km</td><td>+1,679 m</td><td>Recovery shake. Lago Montargil dinner 7:30pm.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div>
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.35rem">Day 6 · Ervidel → Faro · 141 km · +1,786 m &nbsp;<span style="font-weight:400;color:var(--text-muted)">(bus to start)</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Stop</th><th>KM</th><th>Climbed</th><th>Eat / Drink</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td><strong>Castro Verde</strong></td><td>35 km</td><td>+364 m</td><td>Load up here — this is your pre-climb fuel stop. 2 gels + bar + fill both bottles. The flat opening is over: from km 64 you face 22 climbs in the km 64–88 zone (max 18.1%). Eat now while it's still easy.</td></tr>
+            <tr style="background:#fff8e8"><td><strong>Fonte Siceira</strong></td><td>79 km</td><td>+1,005 m</td><td>Tosta mista + Coke. You're mid-cluster — sit and eat properly. Two more climbs at km 85–86 still ahead, then a 19.1% spike at km 117.9. 62 km to Faro.</td></tr>
+            <tr style="background:#e8f5e9"><td><strong>Finish — Faro 🎉</strong></td><td>141 km</td><td>+1,786 m</td><td>You've ridden the N2. Hotel Eva Senses dinner 7:30pm. Celebrate.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Cafe guide -->
+    <div class="section-gap">
+      <div class="card-title">☕ Portuguese Cafe Guide</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>On the Menu</th><th>What It Is</th><th>Best For</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Pastel de nata</strong></td><td>Custard tart (20 g carbs)</td><td>Quick sugar hit, any day</td></tr>
+            <tr><td><strong>Torrada</strong></td><td>White toast with butter (30 g carbs)</td><td>Breakfast or light snack</td></tr>
+            <tr><td><strong>Sumo natural</strong></td><td>Fresh orange juice (25 g carbs)</td><td>Pre-climb sugar</td></tr>
+            <tr><td><strong>Coca-Cola</strong></td><td>Coke (40 g carbs per can)</td><td>Emergency gel replacement</td></tr>
+            <tr><td><strong>Bola de Berlim</strong></td><td>Berliner donut (35 g carbs)</td><td>High-intensity treat</td></tr>
+            <tr><td><strong>Água com gás</strong></td><td>Sparkling water</td><td>Hydration without sugar</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mistakes -->
+    <div class="section-gap">
+      <div class="note-box">
+        <strong>⚠️ Three Mistakes to Avoid</strong>
+        <ol class="mistakes-list">
+          <li><strong>New foods on hard days</strong> — Do not try a strange pastry before a climb. Stick to gels and bananas on Days 1–3.</li>
+          <li><strong>Skipping post-ride fuel</strong> — Your next day starts the moment you stop. That chocolate milk matters.</li>
+          <li><strong>Over-eating fibre</strong> — Beans, lentils, and whole grains cause mid-ride digestive distress at high intensity.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</details>
+
+<details class="card">
+  <summary><span class="card-title" style="margin:0">🎒 On-Bike Packing List</span></summary>
+  <div class="card-body">
+    <div class="card-title" style="margin-bottom:0.5rem">📦 Gear Drop-Off Sessions</div>
+    <div class="note-box" style="margin-bottom:1.25rem">
+      <strong>Drop off your packed gear bag at either session below:</strong>
+      <div style="margin-top:0.75rem;font-size:0.85rem;line-height:1.9">
+        <div>📍 <strong>Salmon Leap Inn (Long Room)</strong></div>
+        <div style="color:var(--text-muted);font-size:0.8rem;margin-bottom:0.5rem">Leixlip Road, Cooldrinagh, Leixlip, Co. Dublin</div>
+        <div>🗓️ <strong>Sunday, May 17th</strong> &nbsp;·&nbsp; 11am – 1pm</div>
+        <div>🗓️ <strong>Tuesday, May 19th</strong> &nbsp;·&nbsp; 11am – 1pm</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Item</th><th>Qty</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr style="background:#fff8e8"><td><strong>Precision PF30 Gels</strong></td><td>22 total</td><td>30g carbs each — reserve for climbs and when stomach is off</td></tr>
+          <tr style="background:#fff8e8"><td><strong>Precision PF30 Chews</strong></td><td>30 servings</td><td>30g carbs each — main on-bike fuel, easier on stomach than gels</td></tr>
+          <tr style="background:#fff8e8"><td><strong>Precision carb + electrolyte mix</strong></td><td>1 bag · 15 servings</td><td>60g carbs · 1,000mg sodium/L per serving — mix each in 750 ml (= 750mg sodium/bottle). Uses 9–11 of 15 servings, 4–6 spare.</td></tr>
+          <tr style="background:#fff8e8"><td><strong>Wine gummies</strong></td><td>6 large bags</td><td>~1 bag/day — easy grab between stops, jersey pocket. No buffer — buy 2 more bags.</td></tr>
+          <tr style="background:#fff8e8"><td><strong>⚠️ Still to buy</strong></td><td>—</td><td><strong>+8 Precision PF30 gels</strong> (zero spare in current plan, Day 5 alone needs 5) · <strong>+2 wine gummy bags</strong> (no drop/loss buffer)</td></tr>
+          <tr><td>Bars</td><td>Buy locally</td><td>1–2 per day at café stops — Snickers, local pastéis, or sports bars</td></tr>
+          <tr><td>Cash</td><td>€15–20</td><td>For café stops (coffee, Coke, pastries, water refill)</td></tr>
+          <tr><td>Bike pump</td><td>1</td><td>For roadside tyre inflation</td></tr>
+          <tr><td>Spare spokes</td><td>4–6</td><td>Rear drive-side most likely to snap</td></tr>
+          <tr><td>Spare tyre</td><td>1 (folding)</td><td>Carried in jersey pocket or saddle bag</td></tr>
+          <tr><td>Brake pads</td><td>1 set</td><td>Road debris in Portugal wears pads fast</td></tr>
+          <tr><td>MTB cleats</td><td>1 set spare</td><td>SPD cleats for walkability at cafes</td></tr>
+          <tr><td>Chafing cream</td><td>1 tube</td><td>Apply every morning — non-negotiable on 6-day blocks</td></tr>
+          <tr><td>Sun cream</td><td>SPF 50+</td><td>Alentejo heat — reapply at every cafe stop</td></tr>
+          <tr><td>Water bottles (large)</td><td>2 × 750 ml</td><td>One for carb+electrolyte mix, one plain water — always</td></tr>
+          <tr><td>Chain lube</td><td>1 small bottle</td><td>Wet lube for Serra da Estrela, dry lube for Alentejo plains</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FUEL DISTRIBUTION PLAN -->
+    <div class="section-gap">
+      <div class="card-title" style="font-size:0.9rem;margin-bottom:0.6rem">📊 Fuel Distribution Plan — 22 Gels · 30 Chews · 6 Gummy Bags</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Route</th><th>PF30 Gels</th><th>PF30 Chews</th><th>Gummies</th><th>Carb mix bottles</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Day 1</strong></td><td>Chaves→Lamego · 100 km</td><td>3 <span style="color:var(--text-muted);font-size:0.8rem">(90g)</span></td><td>4 <span style="color:var(--text-muted);font-size:0.8rem">(120g)</span></td><td>1 bag</td><td>1</td></tr>
+            <tr><td><strong>Day 2</strong></td><td>Lamego→Aguieira · 126 km</td><td>4 <span style="color:var(--text-muted);font-size:0.8rem">(120g)</span></td><td>5 <span style="color:var(--text-muted);font-size:0.8rem">(150g)</span></td><td>1 bag</td><td>1–2</td></tr>
+            <tr><td><strong>Day 3</strong></td><td>Aguieira→Pedrógão · 96 km</td><td>3 <span style="color:var(--text-muted);font-size:0.8rem">(90g)</span></td><td>4 <span style="color:var(--text-muted);font-size:0.8rem">(120g)</span></td><td>1 bag</td><td>1</td></tr>
+            <tr><td><strong>Day 4</strong></td><td>Pedrógão→Montargil · 123 km</td><td>3 <span style="color:var(--text-muted);font-size:0.8rem">(90g)</span></td><td>4 <span style="color:var(--text-muted);font-size:0.8rem">(120g)</span></td><td>1 bag</td><td>1–2</td></tr>
+            <tr style="background:#fdecea"><td><strong>Day 5</strong></td><td>Montargil→Ervidel · 141 km ⚠️</td><td>5 <span style="color:var(--text-muted);font-size:0.8rem">(150g)</span></td><td>6 <span style="color:var(--text-muted);font-size:0.8rem">(180g)</span></td><td>1 bag</td><td>2</td></tr>
+            <tr><td><strong>Day 6</strong></td><td>Ervidel→Faro · 141 km</td><td>4 <span style="color:var(--text-muted);font-size:0.8rem">(120g)</span></td><td>7 <span style="color:var(--text-muted);font-size:0.8rem">(210g)</span></td><td>1 bag</td><td>1–2</td></tr>
+            <tr style="font-weight:600;background:#f0f0f0"><td colspan="2">Total</td><td>22 ✓</td><td>30 ✓</td><td>6 bags ✓</td><td>9–11 of 15 (4–6 spare ✓)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem">Gels = climbs and bad-stomach moments. Chews = steady Zone 2 sections. Gummies = grab from jersey pocket between stops. Buy bars and bananas at cafés.</p>
+    </div>
+
+    <!-- ELECTROLYTE DRINK STRATEGY -->
+    <div class="section-gap">
+      <div class="card-title" style="font-size:0.9rem;margin-bottom:0.6rem">💧 Precision Electrolyte Drink Strategy</div>
+      <div class="note-box" style="margin-bottom:0.75rem">
+        <strong>Two-bottle rule — every day, no exceptions:</strong>
+        <ul style="margin:0.4rem 0 0 1.1rem;font-size:0.85rem;line-height:1.8">
+          <li><strong>Bottle 1 (750 ml):</strong> 1 serving Precision mix = 60g carbs + 750mg sodium. Mix into 750 ml, not 500 ml — keeps carb concentration at ~8%, easier on the stomach at Zone 2 intensity.</li>
+          <li><strong>Bottle 2 (750 ml):</strong> Plain water always. Top up at every café stop. On Days 4–6 add ¼ tsp table salt (free from café table) = ~500mg extra sodium.</li>
+        </ul>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Days</th><th>Temp / Terrain</th><th>Mix servings</th><th>Sodium from mix/bottle</th><th>Extra sodium action</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Days 1–3</strong></td><td>Cooler · Douro Valley</td><td>1/day</td><td>750mg</td><td>None needed — cooler conditions, café food covers the rest</td></tr>
+            <tr style="background:#fff8e8"><td><strong>Days 4–6</strong></td><td>Alentejo heat · 28–32°C</td><td>1–2/day</td><td>750–1,500mg</td><td>Add ¼ tsp salt to plain water bottle — free at every café. Drink 500–750 ml/hour minimum.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box note-neutral" style="margin-top:0.75rem;font-size:0.83rem">
+        <strong>Sodium maths (Days 4–6):</strong> At 97 kg in 30°C heat you'll lose ~900–1,200mg sodium/hour. Per hour you'll get: ~750mg from mix bottle + ~75mg from gels + ~500mg from ¼ tsp salt in water bottle = ~1,325mg/hr. Close enough — and café soup, tosta mista, and Coke add more. You don't need to buy anything else.
+        <br><br>
+        <strong>You have 4–6 spare servings</strong> of the mix — use a second bottle on Days 4 and 5 if you're sweating heavily or feel crampy. Coke at cafés (39g carbs + caffeine) is your best backup on any day.
+        <br><br>
+        <strong>Café stop rule:</strong> Always refill the plain water bottle. Do <em>not</em> water down the carb mix bottle — drink it down first, then refill fresh at the next stop.
+      </div>
+    </div>
+
+  </div>
+</details>
+
+<details class="card">
+  <summary><span class="card-title" style="margin:0">📅 Training Plan — N2 Build-Up</span></summary>
+  <div class="card-body">
+
+    <div class="note-box note-neutral" style="margin-bottom:1.25rem">
+      <strong>Key interruptions accounted for:</strong>
+      <ul style="margin:0.4rem 0 0 1.1rem;font-size:0.85rem;line-height:1.7">
+        <li><strong>Tue Apr 28 – Wed Apr 29</strong> — Work travel → no riding</li>
+        <li><strong>Wed Apr 29</strong> — Return from travel → rest only</li>
+        <li><strong>Sat May 2</strong> — Son's communion → 1h easy spin, no climbing</li>
+        <li><strong>Mon May 4 – Thu May 7</strong> — US work trip → zero training (hotel spin if possible)</li>
+      </ul>
+      <p style="margin-top:0.5rem;font-size:0.82rem">
+        FTP 186W · 100 kg · <strong>1.86 W/kg</strong> — Fitness Rider. This is a charity event:
+        the goal is to <strong>finish every day</strong>, not race. Spin easy on climbs (walk
+        anything &gt;7%), stay in Zone 2 (100–115W), and protect the legs for Day 6.
+        Peak week lands May 10–12 — 14 days before fly-out (May 24). Taper is clean.
+        Do <strong>not</strong> try to make up missed days — continue as scheduled.
+      </p>
+    </div>
+
+    <!-- WEEK 0 -->
+    <div class="section-gap">
+      <div class="card-title">Week 0 &nbsp;·&nbsp; Apr 12–14 &nbsp;·&nbsp; Pre-plan</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Date</th><th>Workout</th><th>Duration</th><th>Elevation</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Sun</td><td>Apr 12</td><td>Mount Washington sim</td><td>~3h</td><td>1,200m</td><td>110–120W, walk steep</td></tr>
+            <tr><td>Mon</td><td>Apr 13</td><td>Travel rest – walk</td><td>45 min</td><td>—</td><td>Active recovery</td></tr>
+            <tr><td>Tue</td><td>Apr 14</td><td>Travel rest – walk</td><td>45 min</td><td>—</td><td>Stretch, hydrate</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WEEK 1 -->
+    <div class="section-gap">
+      <div class="card-title">Week 1 &nbsp;·&nbsp; Apr 15–21 &nbsp;·&nbsp; Base &nbsp;<span style="font-weight:400;color:var(--text-muted)">13.5h · 4,100m</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Date</th><th>Workout</th><th>Duration</th><th>Elevation</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Wed</td><td>Apr 15</td><td>Easy flat spin</td><td>1h</td><td>&lt;200m</td><td>100–110W</td></tr>
+            <tr><td>Thu</td><td>Apr 16</td><td>Rolling hills</td><td>2h</td><td>600m</td><td>110–120W</td></tr>
+            <tr><td>Fri</td><td>Apr 17</td><td>Recovery</td><td>1h</td><td>&lt;100m</td><td>90–100W</td></tr>
+            <tr><td>Sat</td><td>Apr 18</td><td>Steady climb</td><td>2.5h</td><td>1,000m</td><td>110–120W</td></tr>
+            <tr><td>Sun</td><td>Apr 19</td><td>Long ride</td><td>3.5h</td><td>1,400m</td><td>Z2</td></tr>
+            <tr><td>Mon</td><td>Apr 20</td><td>Back-to-back</td><td>2.5h</td><td>1,000m</td><td>100–110W, tired legs</td></tr>
+            <tr><td>Tue</td><td>Apr 21</td><td>Rest</td><td>—</td><td>—</td><td>Walk 30 min</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WEEK 2 -->
+    <div class="section-gap">
+      <div class="card-title">Week 2 &nbsp;·&nbsp; Apr 22–28 &nbsp;·&nbsp; Work travel Apr 28–29 &nbsp;<span style="font-weight:400;color:var(--text-muted)">10h · 4,300m</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Date</th><th>Workout</th><th>Duration</th><th>Elevation</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Wed</td><td>Apr 22</td><td>Tempo intervals</td><td>2h</td><td>600m</td><td>3 × 8 min @ 130W — spin, not race pace</td></tr>
+            <tr><td>Thu</td><td>Apr 23</td><td>Recovery spin</td><td>1h</td><td>flat</td><td>Very easy — 80–90W</td></tr>
+            <tr><td>Fri</td><td>Apr 24</td><td>Climbing focus</td><td>2.5h</td><td>1,600m</td><td>Walk &gt;7%, stay 100–115W</td></tr>
+            <tr><td>Sat</td><td>Apr 25</td><td>Easy spin</td><td>1.5h</td><td>600m</td><td>100–110W</td></tr>
+            <tr><td>Sun</td><td>Apr 26</td><td>Back-to-back long</td><td>3h</td><td>1,500m</td><td>Z2 — 100–115W, tired legs OK</td></tr>
+            <tr><td>Mon</td><td>Apr 27</td><td>Rest</td><td>—</td><td>—</td><td>Easy walk — travel starts tomorrow</td></tr>
+            <tr style="background:#fdecea"><td>Tue</td><td>Apr 28</td><td>✈️ Travel / work — no ride</td><td>—</td><td>—</td><td>Rest or walk</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WEEK 3 -->
+    <div class="section-gap">
+      <div class="card-title">Week 3 &nbsp;·&nbsp; Apr 29–May 5 &nbsp;·&nbsp; Returns Apr 29, communion May 2, US trip May 4 &nbsp;<span style="font-weight:400;color:var(--text-muted)">~9.5h · 4,000m</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Date</th><th>Workout</th><th>Duration</th><th>Elevation</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr style="background:#fdecea"><td>Wed</td><td>Apr 29</td><td>✈️ Return from travel — rest</td><td>—</td><td>—</td><td>Walk, hydrate, recover</td></tr>
+            <tr><td>Thu</td><td>Apr 30</td><td>Easy rolling</td><td>2h</td><td>800m</td><td>100–115W — shake out travel</td></tr>
+            <tr><td>Fri</td><td>May 1</td><td>Climbing focus</td><td>2.5h</td><td>1,400m</td><td>Walk &gt;7%, stay 100–115W</td></tr>
+            <tr style="background:#fff8e8"><td>Sat</td><td>May 2</td><td>🎉 Light spin (communion)</td><td>1h</td><td>flat</td><td>No climbing, easy spin — enjoy the day</td></tr>
+            <tr><td>Sun</td><td>May 3</td><td>Steady climb</td><td>3h</td><td>1,800m</td><td>Z2, walk &gt;7%</td></tr>
+            <tr style="background:#fdecea"><td>Mon</td><td>May 4</td><td>✈️ Travel / US work — no ride</td><td>—</td><td>—</td><td>Rest or short walk</td></tr>
+            <tr style="background:#fdecea"><td>Tue</td><td>May 5</td><td>✈️ US Work — no ride</td><td>—</td><td>—</td><td>Rest</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WEEK 4 -->
+    <div class="section-gap">
+      <div class="card-title">Week 4 &nbsp;·&nbsp; May 6–12 &nbsp;·&nbsp; US trip ends May 7, Peak May 10 &nbsp;<span style="font-weight:400;color:var(--text-muted)">~12h · 4,300m</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Date</th><th>Workout</th><th>Duration</th><th>Elevation</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr style="background:#fdecea"><td>Wed</td><td>May 6</td><td>✈️ Work — no ride</td><td>—</td><td>—</td><td>Rest</td></tr>
+            <tr style="background:#fdecea"><td>Thu</td><td>May 7</td><td>✈️ Travel home — no ride</td><td>—</td><td>—</td><td>Rest, hydrate, recover</td></tr>
+            <tr><td>Fri</td><td>May 8</td><td>Easy recovery spin</td><td>1h</td><td>flat</td><td>90–100W — shake out jet lag</td></tr>
+            <tr><td>Sat</td><td>May 9</td><td>Pre-peak</td><td>2h</td><td>600m</td><td>Easy — legs should feel fresh</td></tr>
+            <tr style="font-weight:600"><td>Sun</td><td>May 10</td><td>🏔️ Peak long ride</td><td>5.5h</td><td>2,200m</td><td>Walk all &gt;7%</td></tr>
+            <tr><td>Mon</td><td>May 11</td><td>Back-to-back</td><td>3.5h</td><td>1,500m</td><td>Tired, easy</td></tr>
+            <tr><td>Tue</td><td>May 12</td><td>Rest</td><td>—</td><td>—</td><td>Full rest</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WEEK 5 -->
+    <div class="section-gap">
+      <div class="card-title">Week 5 &nbsp;·&nbsp; May 13–19 &nbsp;·&nbsp; Taper begins &nbsp;<span style="font-weight:400;color:var(--text-muted)">11.5h · 4,200m</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Date</th><th>Workout</th><th>Duration</th><th>Elevation</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Wed</td><td>May 13</td><td>Easy spin</td><td>1.5h</td><td>300m</td><td>Recovery</td></tr>
+            <tr><td>Thu</td><td>May 14</td><td>Tempo climb</td><td>2h</td><td>1,000m</td><td>3 × 8 min @ 130W</td></tr>
+            <tr><td>Fri</td><td>May 15</td><td>Recovery</td><td>1h</td><td>flat</td><td>100W</td></tr>
+            <tr><td>Sat</td><td>May 16</td><td>Steady climb</td><td>2.5h</td><td>1,400m</td><td>Z2, easy</td></tr>
+            <tr><td>Sun</td><td>May 17</td><td>Last long ride</td><td>3h</td><td>1,200m</td><td>Easy, no walking</td></tr>
+            <tr><td>Mon</td><td>May 18</td><td>Recovery spin</td><td>1.5h</td><td>300m</td><td>Very light</td></tr>
+            <tr style="background:#fff8e8"><td>Tue</td><td>May 19</td><td>🚲 Bike drop-off</td><td>—</td><td>—</td><td>Salmon Leap Inn, 11am–1pm · rest day</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WEEK 6 -->
+    <div class="section-gap">
+      <div class="card-title">Week 6 &nbsp;·&nbsp; May 20–24 &nbsp;·&nbsp; Final taper &nbsp;<span style="font-weight:400;color:var(--text-muted)">~3.75h · 600m</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Date</th><th>Workout</th><th>Duration</th><th>Elevation</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Wed</td><td>May 20</td><td>Easy rolling</td><td>1.5h</td><td>400m</td><td>110W</td></tr>
+            <tr><td>Thu</td><td>May 21</td><td>Short tempo</td><td>1h</td><td>200m</td><td>2 × 5 min @ 130W</td></tr>
+            <tr><td>Fri</td><td>May 22</td><td>Recovery</td><td>45 min</td><td>flat</td><td>90–100W</td></tr>
+            <tr><td>Sat</td><td>May 23</td><td>Rest</td><td>—</td><td>—</td><td>Final bike check, pack</td></tr>
+            <tr style="background:#e8f5e9;font-weight:600"><td>Sun</td><td>May 24</td><td>✈️ Fly to Porto</td><td>—</td><td>—</td><td>Rest, hydrate, bike in hold</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</details>
+
+<details class="card">
+  <summary><span class="card-title" style="margin:0">🌡️ Heat Acclimation Protocol</span></summary>
+  <div class="card-body">
+
+    <div class="note-box note-neutral" style="margin-bottom:1.25rem;font-size:0.85rem">
+      Accumulate <strong>5–6 heat exposures</strong> in the 8 days before departure (Fri May 15 → Sat May 23).
+      Mix of passive sauna sessions and post-ride saunas — the slight core-temp elevation from a prior
+      ride makes each sauna significantly more effective. <strong>Do not sauna on travel day (Sun May 24).</strong>
+    </div>
+
+    <div class="section-gap">
+      <div class="card-title" style="font-size:0.9rem;margin-bottom:0.6rem">📅 8-Day Schedule (May 15–23)</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Date</th><th>Session</th><th>Duration &amp; Details</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr style="background:#fff8e8"><td>Fri</td><td>May 15</td><td>🌡️ Passive sauna</td><td>20–30 min @ 70–80°C</td><td>First exposure — just sit and sweat. Drink 500 ml electrolyte water.</td></tr>
+            <tr style="background:#fff8e8"><td>Sat</td><td>May 16</td><td>🚴+🌡️ Post-ride sauna</td><td>25–35 min after easy 60–90 min Z1/Z2 ride (&lt;125 bpm)</td><td>Ride to beach if possible, lock bike, sauna. Core temp from ride makes this very effective.</td></tr>
+            <tr><td>Sun</td><td>May 17</td><td>Rest / light spin</td><td>—</td><td>Body adapts. No daily heat hits needed.</td></tr>
+            <tr style="background:#fff8e8"><td>Mon</td><td>May 18</td><td>🌡️ Passive sauna</td><td>30–40 min, brief cool-down break midway if needed</td><td>Sip 750 ml electrolyte water during session.</td></tr>
+            <tr style="background:#fff8e8"><td>Tue</td><td>May 19</td><td>🚲+🌡️ Post-ride sauna</td><td>30–40 min after easy ride</td><td>Bike drop-off day (Salmon Leap Inn, 11am–1pm). Do the ride first, drop off bike, then sauna.</td></tr>
+            <tr><td>Wed</td><td>May 20</td><td>Rest / very light</td><td>—</td><td>—</td></tr>
+            <tr style="background:#fff8e8"><td>Thu</td><td>May 21</td><td>🚴+🌡️ Post-ride sauna</td><td>30–40 min, ideally full 40 min</td><td>Longest session — aim to hold the full 40 min. Plasma volume expansion peaks around days 6–10.</td></tr>
+            <tr style="background:#e8f5e9"><td>Fri</td><td>May 22</td><td>🌡️ Optional light sauna</td><td>20 min, easy</td><td>Top-up only. Don't overdo it two days before fly-out.</td></tr>
+            <tr><td>Sat</td><td>May 23</td><td>Rest</td><td>—</td><td>Final bike check, pack, hydrate. No sauna.</td></tr>
+            <tr style="background:#fdecea"><td>Sun</td><td>May 24</td><td>✈️ Fly to Porto</td><td>—</td><td>Fully hydrated and rested. Bike in hold.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem">5–6 sauna sessions across 8 days — sufficient to trigger significant physiological adaptations.</p>
+    </div>
+
+    <div class="section-gap">
+      <div class="card-title" style="font-size:0.9rem;margin-bottom:0.6rem">🧠 Why This Works</div>
+      <ul style="font-size:0.85rem;line-height:1.9;margin:0 0 0 1.1rem">
+        <li><strong>Plasma volume expands</strong> significantly by day 5–7, improving your body's ability to keep blood flowing to skin and muscles simultaneously.</li>
+        <li><strong>Sweating starts earlier</strong> and becomes more dilute — you cool better without losing as much sodium.</li>
+        <li><strong>Heart rate and core temperature</strong> during exercise in the heat will be lower, making your Z2 target on the N2 easier to sustain across all 6 days.</li>
+        <li><strong>Perceived exertion drops</strong> — huge on a 6-day tour through the Alentejo in late May.</li>
+      </ul>
+    </div>
+
+    <div class="section-gap">
+      <div class="card-title" style="font-size:0.9rem;margin-bottom:0.6rem">💧 Hydration &amp; Practical Tips</div>
+      <div class="note-box">
+        <ul style="font-size:0.85rem;line-height:1.9;margin:0 0 0 1.1rem">
+          <li><strong>Weigh before and after</strong> each session (naked, dry towel). For every 1 kg lost, drink 1.5 litres with electrolytes over the next 2 hours. Don't skip the sodium.</li>
+          <li><strong>Avoid alcohol</strong> on sauna days, or limit it heavily.</li>
+          <li><strong>Cool down naturally</strong> after the sauna — a 10–15 min walk in fresh air, followed by a tepid shower. A walk on the beach is ideal.</li>
+          <li><strong>Don't push through dizziness or nausea.</strong> Heat adaptation is about consistent, tolerable stress — not grit. Exit if you need to.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</details>
+
+
+</main>
+
+<footer>
+  Elevation profiles and routes are drawn from the official event GPX files.<br>
+  Pace estimates are calculated from FTP, weight, and actual GPX elevation data.
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  ROUTE DATA
+// ═══════════════════════════════════════════════════════
+const DAYS = [
+  // gainM = official N2 Roadbook 2026 figures
+  { day:1, date:'Mon 25 May', from:'Chaves',    to:'Lamego',    distKm:100.4, gainM:1817 },
+  { day:2, date:'Tue 26 May', from:'Lamego',    to:'Aguieira',  distKm:126.6, gainM:2044 },
+  { day:3, date:'Wed 27 May', from:'Aguieira',  to:'Pedrogão',  distKm:95.9,  gainM:2105 },
+  { day:4, date:'Thu 28 May', from:'Pedrogão',  to:'Montargil', distKm:123.1, gainM:1679 },
+  { day:5, date:'Fri 29 May', from:'Montargil', to:'Ervidel',   distKm:147.3, gainM:2105 },
+  { day:6, date:'Sat 30 May', from:'Ervidel',   to:'Faro',      distKm:141.0, gainM:1786 },
+];
+
+// ═══════════════════════════════════════════════════════
+//  DAILY ITINERARY  (from official N2 Roadbook 2026)
+// ═══════════════════════════════════════════════════════
+// gain values = cumulative elevation gain at that km marker (from GPX)
+const ITINERARY = {
+  1: {
+    note: null,
+    dinner: 'Lamego Hotel & Life — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Hotel Premium Chaves',       time:'8:30am'  },
+      { type:'pitstop', km:41,  gain:710,  name:'A Recta',                    time:'~10:30am'},
+      { type:'pitstop', km:80,  gain:1289, name:'Santa Marta',                time:'~1:00pm' },
+      { type:'finish',  km:100, gain:1817, name:'Lamego Hotel & Life',        time:'~2:00pm' },
+    ],
+    steepSections: [
+      { n:1,  km:4.1,  len:50,  peak:8.1  },
+      { n:2,  km:4.2,  len:50,  peak:8.2  },
+      { n:3,  km:4.2,  len:50,  peak:8.4  },
+      { n:4,  km:4.8,  len:50,  peak:8.1  },
+      { n:5,  km:12.3, len:50,  peak:8.6  },
+      { n:6,  km:15.5, len:125, peak:16.8 },
+      { n:7,  km:15.8, len:53,  peak:13.0 },
+      { n:8,  km:21.6, len:50,  peak:8.6  },
+      { n:9,  km:22.5, len:50,  peak:8.4  },
+      { n:10, km:23.9, len:50,  peak:8.3  },
+      { n:11, km:24.4, len:50,  peak:8.6  },
+      { n:12, km:25.0, len:96,  peak:9.5  },
+      { n:13, km:25.1, len:50,  peak:8.1  },
+      { n:14, km:36.1, len:57,  peak:10.5 },
+      { n:15, km:46.8, len:125, peak:12.5 },
+      { n:16, km:49.0, len:76,  peak:8.6  },
+      { n:17, km:65.6, len:86,  peak:22.2 },
+      { n:18, km:65.6, len:50,  peak:10.0 },
+      { n:19, km:65.9, len:50,  peak:8.8  },
+      { n:20, km:66.5, len:171, peak:13.9 },
+      { n:21, km:67.2, len:50,  peak:10.0 },
+      { n:22, km:70.2, len:102, peak:9.8  },
+      { n:23, km:78.0, len:115, peak:13.1 },
+      { n:24, km:78.7, len:86,  peak:11.0 },
+      { n:25, km:89.4, len:128, peak:12.4 },
+      { n:26, km:89.8, len:93,  peak:13.1 },
+      { n:27, km:90.4, len:87,  peak:10.5 },
+      { n:28, km:90.6, len:50,  peak:10.4 },
+      { n:29, km:91.2, len:50,  peak:9.2  },
+      { n:30, km:91.7, len:88,  peak:10.0 },
+      { n:31, km:91.8, len:50,  peak:8.9  },
+      { n:32, km:92.9, len:50,  peak:8.9  },
+      { n:33, km:94.8, len:50,  peak:8.8  },
+      { n:34, km:96.8, len:96,  peak:10.0 },
+      { n:35, km:97.5, len:65,  peak:9.3  },
+      { n:36, km:97.7, len:50,  peak:9.0  },
+    ],
+    steepNote: '✅ <strong>All sections ridden — no walking needed on Day 1.</strong> Two main clusters: the <strong>km 65–67</strong> zone (hardest gradient 22.2%) and the <strong>km 89–98</strong> finishing block (up to 13.1%). 6 sections hit 13%+ — all conquered in 39°C heat.',
+    noWalkWarning: true,
+    descentSections: [
+      { n:1, km:65.2, len:60,  peak:15.4, dur:'0:05', concern:'steep'     },
+      { n:2, km:72.2, len:63,  peak:17.6, dur:'0:05', concern:'steep'     },
+      { n:3, km:88.6, len:113, peak:22.6, dur:'0:10', concern:'very steep'},
+      { n:4, km:89.0, len:53,  peak:15.3, dur:'0:04', concern:'steep'     },
+    ],
+    descentNote: 'All descents are in the second half. The main braking risk is the <strong>km 88.6 descent (22.6%, 113m)</strong> — brake hard before any corners here. It sits just 1 km before a further drop at km 89.0. Both arrive in the final 12 km when concentration is fading.',
+    climbOverview: `<div class="note-box" style="margin-top:0.75rem;font-size:0.83rem">
+      <strong>📊 Climb Overview</strong> — <strong>0.48 km above 10% gradient</strong> across 16 sections.
+      <table style="margin-top:0.5rem;width:100%;font-size:0.8rem;border-collapse:collapse">
+        <thead><tr style="border-bottom:1px solid #e0e0e0"><th style="text-align:left;padding:0.2rem 0.5rem 0.2rem 0">Zone</th><th style="text-align:left;padding:0.2rem 0">Notable sections</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 15.6</td><td style="padding:0.2rem 0">43 m — early ramp at 16.8%</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 46.8</td><td style="padding:0.2rem 0">60 m — longest single section of the day</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 65.6–66.6</td><td style="padding:0.2rem 0">~131 m combined — the 22.2% cluster (hardest of the day)</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 78.0–78.7</td><td style="padding:0.2rem 0">90 m combined</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 89.4–91.8</td><td style="padding:0.2rem 0">~125 m — late-day cluster in the final 10 km</td></tr>
+        </tbody>
+      </table>
+    </div>`,
+  },
+  2: {
+    note: null,
+    dinner: 'Montebelo Aguieira Lake Resort — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Lamego Hotel Car Park',              time:'8:30am'  },
+      { type:'pitstop', km:56,  gain:1041, name:'Boémio',                             time:'~10:30am'},
+      { type:'pitstop', km:95,  gain:1632, name:'O Terraço',                          time:'~1:00pm' },
+      { type:'finish',  km:126, gain:2044, name:'Montebelo Aguieira Lake Resort',     time:'~2:00pm' },
+    ],
+    steepSections: [
+      { n:1,  km:3.3,   len:406, peak:14.5 },
+      { n:2,  km:3.6,   len:224, peak:8.6  },
+      { n:3,  km:3.9,   len:273, peak:10.3 },
+      { n:4,  km:4.3,   len:257, peak:9.4  },
+      { n:5,  km:5.5,   len:221, peak:9.4  },
+      { n:6,  km:6.1,   len:235, peak:8.6  },
+      { n:7,  km:6.2,   len:234, peak:8.6  },
+      { n:8,  km:14.0,  len:204, peak:8.5  },
+      { n:9,  km:14.8,  len:218, peak:8.7  },
+      { n:10, km:18.5,  len:380, peak:9.9  },
+      { n:11, km:35.9,  len:232, peak:8.3  },
+      { n:12, km:36.1,  len:392, peak:10.8 },
+      { n:13, km:36.8,  len:202, peak:8.5  },
+      { n:14, km:37.2,  len:377, peak:12.7 },
+      { n:15, km:49.0,  len:407, peak:12.4 },
+      { n:16, km:49.3,  len:290, peak:9.9  },
+      { n:17, km:49.9,  len:231, peak:10.4 },
+      { n:18, km:50.0,  len:291, peak:10.4 },
+      { n:19, km:50.6,  len:395, peak:13.0 },
+      { n:20, km:51.0,  len:474, peak:14.4 },
+      { n:21, km:51.3,  len:260, peak:8.0  },
+      { n:22, km:51.9,  len:299, peak:10.3 },
+      { n:23, km:55.3,  len:201, peak:8.1  },
+      { n:24, km:57.8,  len:412, peak:11.5 },
+      { n:25, km:58.3,  len:265, peak:11.7 },
+      { n:26, km:59.1,  len:227, peak:8.2  },
+      { n:27, km:71.0,  len:321, peak:9.8  },
+      { n:28, km:82.5,  len:317, peak:9.2  },
+      { n:29, km:82.9,  len:222, peak:8.9  },
+      { n:30, km:83.2,  len:300, peak:9.0  },
+      { n:31, km:83.7,  len:362, peak:12.0 },
+      { n:32, km:100.6, len:240, peak:8.4  },
+      { n:33, km:110.6, len:298, peak:9.4  },
+      { n:34, km:113.7, len:381, peak:14.5 },
+      { n:35, km:115.1, len:318, peak:11.8 },
+      { n:36, km:115.5, len:259, peak:8.7  },
+      { n:37, km:118.8, len:259, peak:8.6  },
+      { n:38, km:119.2, len:339, peak:13.3 },
+      { n:39, km:120.2, len:318, peak:9.7  },
+    ],
+    steepNote: '✅ <strong>All sections ridden — no walking needed on Day 2.</strong> Hardest zones: <strong>km 3–7</strong> (7 punchy climbs stacked early), <strong>km 49–59</strong> (9 climbs in 10 km, several hitting 13–14%), and the <strong>final km 113–120</strong> block with five more on cooked legs. 3 sections hit 13%+ — km 51.0 (14.4%), km 113.7 (14.5%), km 119.2 (13.3%) — all ridden.',
+    noWalkWarning: true,
+    descentSections: [
+      { n:1, km:31.6,  len:82,  peak:19.4, dur:'0:07', concern:'steep'     },
+      { n:2, km:32.3,  len:104, peak:26.0, dur:'0:09', concern:'extreme'   },
+      { n:3, km:32.8,  len:90,  peak:21.0, dur:'0:08', concern:'very steep'},
+      { n:4, km:33.1,  len:99,  peak:25.0, dur:'0:08', concern:'very steep'},
+      { n:5, km:78.5,  len:104, peak:18.8, dur:'0:09', concern:'steep'     },
+      { n:6, km:113.5, len:82,  peak:15.8, dur:'0:07', concern:'steep'     },
+      { n:7, km:113.7, len:96,  peak:16.1, dur:'0:08', concern:'steep'     },
+    ],
+    descentNote: 'The most technically demanding descent on the tour: a <strong>four-section cluster at km 31.6–33.2</strong> peaking at 26.0% — feather brakes through this entire zone, not just the steepest part. A secondary descent at km 78.5 (18.8%) arrives mid-route. The <strong>km 113.5–113.7 double</strong> tests concentration in the final 13 km.',
+    climbOverview: `<div class="note-box" style="margin-top:0.75rem;font-size:0.83rem">
+      <strong>📊 Climb Overview</strong> — <strong>1.57 km above 10% gradient</strong> across 33 sections.
+      <table style="margin-top:0.5rem;width:100%;font-size:0.8rem;border-collapse:collapse">
+        <thead><tr style="border-bottom:1px solid #e0e0e0"><th style="text-align:left;padding:0.2rem 0.5rem 0.2rem 0">Zone</th><th style="text-align:left;padding:0.2rem 0">Notable sections</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 3.4–4.4</td><td style="padding:0.2rem 0">~236 m combined — before you're warmed up</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 49.1–51.1</td><td style="padding:0.2rem 0"><strong>~453 m across 7 sections</strong> — hardest sustained block of the day</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 57.9–58.4</td><td style="padding:0.2rem 0">~138 m combined</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 110.7–115.6</td><td style="padding:0.2rem 0">~260 m across 5 sections — final 16 km cluster</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 119.2–120.3</td><td style="padding:0.2rem 0">~141 m — last push before the finish</td></tr>
+        </tbody>
+      </table>
+    </div>`,
+  },
+  3: {
+    note: '⚠️ Road closed at km 93 — cycling ends at km 90. Bus transfer from km 90 to Hotel da Montanha.',
+    dinner: 'Hotel da Montanha — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,  gain:0,    name:'Montebelo Aguieira Car Park',   time:'8:30am'  },
+      { type:'pitstop', km:46, gain:916,  name:'Beira Rio',                      time:'~10:30am'},
+      { type:'bus',     km:90, gain:1971, name:'Bus transfer — Hotel da Montanha', time:'~2:00pm'},
+      { type:'finish',  km:96, gain:2105, name:'Hotel da Montanha (bus)',         time:'~3:00pm' },
+    ],
+    steepSections: [
+      { n:1,  km:0.3,  len:106, peak:20.7 },
+      { n:2,  km:0.7,  len:50,  peak:9.6  },
+      { n:3,  km:3.6,  len:148, peak:13.0 },
+      { n:4,  km:3.8,  len:91,  peak:12.5 },
+      { n:5,  km:9.3,  len:201, peak:26.5 },
+      { n:6,  km:9.6,  len:151, peak:13.5 },
+      { n:7,  km:20.6, len:124, peak:14.8 },
+      { n:8,  km:21.9, len:90,  peak:11.0 },
+      { n:9,  km:22.2, len:79,  peak:9.5  },
+      { n:10, km:23.1, len:385, peak:20.3 },
+      { n:11, km:23.6, len:50,  peak:8.0  },
+      { n:12, km:30.4, len:99,  peak:16.1 },
+      { n:13, km:30.7, len:50,  peak:10.0 },
+      { n:14, km:32.1, len:50,  peak:8.9  },
+      { n:15, km:34.3, len:50,  peak:9.2  },
+      { n:16, km:35.2, len:50,  peak:8.5  },
+      { n:17, km:47.5, len:104, peak:11.9 },
+      { n:18, km:48.0, len:107, peak:11.3 },
+      { n:19, km:48.8, len:113, peak:14.8 },
+      { n:20, km:49.4, len:61,  peak:10.1 },
+      { n:21, km:50.3, len:50,  peak:8.1  },
+      { n:22, km:51.1, len:87,  peak:10.1 },
+      { n:23, km:51.9, len:50,  peak:9.7  },
+      { n:24, km:52.5, len:90,  peak:10.5 },
+      { n:25, km:52.8, len:78,  peak:9.6  },
+      { n:26, km:53.3, len:95,  peak:11.0 },
+      { n:27, km:53.4, len:96,  peak:13.1 },
+      { n:28, km:53.7, len:50,  peak:9.9  },
+      { n:29, km:54.0, len:73,  peak:9.8  },
+      { n:30, km:54.5, len:50,  peak:8.1  },
+      { n:31, km:55.0, len:83,  peak:11.4 },
+      { n:32, km:55.7, len:50,  peak:8.2  },
+      { n:33, km:56.1, len:140, peak:14.6 },
+      { n:34, km:56.5, len:50,  peak:8.1  },
+      { n:35, km:58.2, len:63,  peak:9.5  },
+      { n:36, km:59.1, len:50,  peak:8.1  },
+      { n:37, km:59.1, len:50,  peak:8.5  },
+      { n:38, km:59.1, len:107, peak:9.1  },
+      { n:39, km:59.4, len:107, peak:9.8  },
+      { n:40, km:59.7, len:93,  peak:9.2  },
+      { n:41, km:59.8, len:79,  peak:8.8  },
+      { n:42, km:59.9, len:103, peak:9.5  },
+      { n:43, km:74.3, len:166, peak:12.3 },
+      { n:44, km:74.6, len:82,  peak:11.7 },
+      { n:45, km:74.7, len:127, peak:10.0 },
+      { n:46, km:75.0, len:141, peak:16.9 },
+      { n:47, km:75.1, len:145, peak:10.7 },
+      { n:48, km:76.2, len:101, peak:12.0 },
+      { n:49, km:76.3, len:119, peak:11.9 },
+      { n:50, km:76.5, len:50,  peak:8.8  },
+      { n:51, km:76.8, len:277, peak:21.8 },
+      { n:52, km:79.2, len:86,  peak:11.9 },
+      { n:53, km:79.3, len:68,  peak:11.0 },
+      { n:54, km:79.5, len:87,  peak:9.5  },
+      { n:55, km:79.6, len:214, peak:11.4 },
+      { n:56, km:80.0, len:199, peak:10.5 },
+      { n:57, km:80.2, len:50,  peak:8.1  },
+      { n:58, km:80.9, len:50,  peak:8.2  },
+      { n:59, km:81.0, len:122, peak:9.5  },
+      { n:60, km:81.2, len:85,  peak:9.0  },
+      { n:61, km:82.1, len:68,  peak:9.1  },
+      { n:62, km:83.8, len:50,  peak:9.0  },
+    ],
+    steepNote: '✅ <strong>Almost entirely ridden — only the km 9.3 pitch (26.5%) required a walk.</strong> The 20.7% ramp at km 0.3 was conquered with no warmup. The km 47–60 block of 13 consecutive climbs was ridden through after fuelling at Beira Rio. The km 74–83 cluster (21.8% peak) was paced well. 9 sections hit 13%+ — all ridden except km 9.3. Sections after km 90 not shown — bus transfer.',
+    noWalkWarning: true,
+    descentSections: [
+      { n:1, km:3.2, len:91,  peak:28.1, dur:'0:08', concern:'extreme'   },
+      { n:2, km:4.4, len:133, peak:20.2, dur:'0:11', concern:'very steep'},
+    ],
+    descentNote: 'Two extreme descents hit in the <strong>first 5 km — before you\'ve warmed up</strong>. The km 3.2 drop (28.1%, 91m) is the second-steepest descent of the week — feather brakes and no sudden inputs. It flows straight into a 133m, 20.2% drop at km 4.4. Scrub speed before the first corner and stay loose.',
+    climbOverview: `<div class="note-box" style="margin-top:0.75rem;font-size:0.83rem">
+      <strong>📊 Climb Overview (rideable km 0–90)</strong> — <strong>1.81 km above 10% gradient</strong> across 40 sections.
+      <table style="margin-top:0.5rem;width:100%;font-size:0.8rem;border-collapse:collapse">
+        <thead><tr style="border-bottom:1px solid #e0e0e0"><th style="text-align:left;padding:0.2rem 0.5rem 0.2rem 0">Zone</th><th style="text-align:left;padding:0.2rem 0">Notable sections</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 0.3</td><td style="padding:0.2rem 0">47 m opener — straight into it</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 9.3–9.6</td><td style="padding:0.2rem 0">213 m combined — the 26.5% monster</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 23.1</td><td style="padding:0.2rem 0"><strong>252 m</strong> — longest single &gt;10% stretch of the day</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 47.5–56.1</td><td style="padding:0.2rem 0">~500 m across 13 sections — the brutal post-Beira Rio cluster</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 74.3–80.1</td><td style="padding:0.2rem 0">~700 m of repeated &gt;10% through the final climbing zone</td></tr>
+        </tbody>
+      </table>
+    </div>`,
+  },
+  4: {
+    note: null,
+    dinner: 'Lago Montargil & Villas — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Hotel da Montanha Car Park',  time:'8:30am'  },
+      { type:'pitstop', km:65,  gain:1137, name:'Café Três Coroas',              time:'~10:30am'},
+      { type:'pitstop', km:109, gain:1542, name:'Picnic Area',                  time:'~1:30pm' },
+      { type:'finish',  km:123, gain:1679, name:'Lago Montargil & Villas',     time:'~3:00pm' },
+    ],
+    steepSections: [
+      { n:1,  km:1.1,   len:126, peak:18.2 },
+      { n:2,  km:2.4,   len:93,  peak:10.9 },
+      { n:3,  km:5.3,   len:82,  peak:11.3 },
+      { n:4,  km:11.0,  len:98,  peak:11.4 },
+      { n:5,  km:11.1,  len:73,  peak:10.1 },
+      { n:6,  km:19.5,  len:50,  peak:8.6  },
+      { n:7,  km:19.6,  len:98,  peak:9.2  },
+      { n:8,  km:19.6,  len:69,  peak:9.0  },
+      { n:9,  km:19.7,  len:64,  peak:9.1  },
+      { n:10, km:20.4,  len:65,  peak:10.5 },
+      { n:11, km:20.5,  len:50,  peak:14.4 },
+      { n:12, km:20.6,  len:50,  peak:10.0 },
+      { n:13, km:20.8,  len:67,  peak:10.4 },
+      { n:14, km:21.1,  len:101, peak:14.0 },
+      { n:15, km:21.4,  len:50,  peak:9.3  },
+      { n:16, km:29.2,  len:131, peak:16.1 },
+      { n:17, km:29.6,  len:87,  peak:11.3 },
+      { n:18, km:30.0,  len:50,  peak:8.1  },
+      { n:19, km:32.6,  len:289, peak:16.0 },
+      { n:20, km:33.1,  len:50,  peak:8.1  },
+      { n:21, km:33.1,  len:147, peak:9.3  },
+      { n:22, km:33.5,  len:222, peak:11.4 },
+      { n:23, km:35.5,  len:97,  peak:10.5 },
+      { n:24, km:35.8,  len:146, peak:12.5 },
+      { n:25, km:35.9,  len:113, peak:11.3 },
+      { n:26, km:38.9,  len:50,  peak:8.2  },
+      { n:27, km:39.6,  len:95,  peak:17.0 },
+      { n:28, km:40.3,  len:50,  peak:8.3  },
+      { n:29, km:49.3,  len:295, peak:16.1 },
+      { n:30, km:50.1,  len:50,  peak:20.6 },
+      { n:31, km:51.9,  len:50,  peak:8.4  },
+      { n:32, km:67.2,  len:50,  peak:8.3  },
+      { n:33, km:82.1,  len:224, peak:14.8 },
+      { n:34, km:82.6,  len:91,  peak:9.6  },
+      { n:35, km:82.7,  len:111, peak:11.5 },
+      { n:36, km:82.8,  len:146, peak:9.8  },
+      { n:37, km:86.3,  len:50,  peak:9.3  },
+      { n:38, km:121.5, len:50,  peak:8.2  },
+    ],
+    steepNote: 'All the hardest climbing happens <strong>before the first support stop at km 65</strong> — self-fuel from the gun. An 18.2% ramp hits at <strong>km 1.1 with no warmup</strong>. The <strong>km 19–40 zone</strong> packs in 12 climbs including a 289m wall at km 32.6 (16.0%). The <strong>km 49–50 double</strong> peaks at 20.6% — the day\'s hardest. A secondary cluster sits at km 82–86 (up to 14.8%). <strong style="color:var(--red)">9 sections hit 13%+ (marked red)</strong> — the 20.6% (km 50.1), 18.2% (km 1.1), and 17.0% (km 39.6) in particular should be treated as walkable.',
+    descentSections: [
+      { n:1, km:0.3,  len:71,  peak:18.3, dur:'0:06', concern:'steep'     },
+      { n:2, km:0.5,  len:343, peak:20.8, dur:'0:30', concern:'very steep'},
+      { n:3, km:1.0,  len:53,  peak:17.5, dur:'0:04', concern:'steep'     },
+      { n:4, km:40.0, len:76,  peak:17.3, dur:'0:06', concern:'steep'     },
+      { n:5, km:45.8, len:95,  peak:25.0, dur:'0:08', concern:'very steep'},
+      { n:6, km:47.4, len:135, peak:16.7, dur:'0:12', concern:'steep'     },
+    ],
+    descentNote: 'Day 4 starts with the longest sustained descent of the week: <strong>343m at 20.8% (km 0.5) requiring 30 seconds of continuous braking</strong> — cold hands, cold brakes. Get your speed under control before the first corner. A second cluster at <strong>km 45.8–47.4</strong> peaks at 25.0% — brake hard before entering.',
+    climbOverview: `<div class="note-box" style="margin-top:0.75rem;font-size:0.83rem">
+      <strong>📊 Climb Overview</strong> — <strong>1.19 km above 10% gradient</strong> across 21 sections — all the hard work is before the first stop at km 65.
+      <table style="margin-top:0.5rem;width:100%;font-size:0.8rem;border-collapse:collapse">
+        <thead><tr style="border-bottom:1px solid #e0e0e0"><th style="text-align:left;padding:0.2rem 0.5rem 0.2rem 0">Zone</th><th style="text-align:left;padding:0.2rem 0">Notable sections</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 20.4–21.1</td><td style="padding:0.2rem 0">~99 m combined — early cluster</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 29.2–36.0</td><td style="padding:0.2rem 0"><strong>~522 m</strong> — biggest combined zone; includes 209 m at km 32.6</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 49.3</td><td style="padding:0.2rem 0"><strong>294 m</strong> — longest single section (16.1% wall, before café stop)</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 82.1–82.7</td><td style="padding:0.2rem 0">~201 m — secondary cluster after Café Três Coroas</td></tr>
+        </tbody>
+      </table>
+    </div>`,
+  },
+  5: {
+    note: '⚠️ Café Imperial is the cycling finish — walk 400m back to bike storage, then bus to BejaParque Hotel.',
+    dinner: 'BejaParque Hotel — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Lago Montargil & Villas Car Park', time:'8:30am'  },
+      { type:'pitstop', km:58,  gain:924,  name:'Café Rotunda',                      time:'~10:30am'},
+      { type:'pitstop', km:91,  gain:1489, name:'Piknic',                             time:'~1:00pm' },
+      { type:'bus',     km:141, gain:2105, name:'Café Imperial → bus to BejaParque', time:'~2:00pm' },
+    ],
+    steepSections: [
+      { n:1,  km:3.0,   len:50,  peak:10.8 },
+      { n:2,  km:18.8,  len:62,  peak:9.3  },
+      { n:3,  km:18.8,  len:68,  peak:10.5 },
+      { n:4,  km:19.4,  len:71,  peak:9.0  },
+      { n:5,  km:28.2,  len:50,  peak:8.2  },
+      { n:6,  km:28.2,  len:70,  peak:10.9 },
+      { n:7,  km:28.5,  len:84,  peak:8.4  },
+      { n:8,  km:31.6,  len:66,  peak:10.4 },
+      { n:9,  km:36.5,  len:50,  peak:8.4  },
+      { n:10, km:39.2,  len:80,  peak:10.1 },
+      { n:11, km:45.4,  len:50,  peak:8.1  },
+      { n:12, km:47.9,  len:50,  peak:9.5  },
+      { n:13, km:63.2,  len:50,  peak:8.3  },
+      { n:14, km:66.6,  len:73,  peak:9.0  },
+      { n:15, km:70.1,  len:87,  peak:11.1 },
+      { n:16, km:70.2,  len:259, peak:15.3 },
+      { n:17, km:86.3,  len:79,  peak:10.8 },
+      { n:18, km:105.4, len:122, peak:13.9 },
+      { n:19, km:105.5, len:70,  peak:10.6 },
+    ],
+    steepNote: '✅ <strong>All sections ridden — no walking needed on Day 5.</strong> Only 19 sections across 147 km — the least steep day of the tour. The 15.3% at km 70.2 (259m) and 13.9% at km 105.4 were both ridden on tired legs. 27 km/h average.',
+    noWalkWarning: true,
+    descentSections: [
+      { n:1, km:23.4, len:75, peak:16.7, dur:'0:06', concern:'steep'},
+    ],
+    descentNote: 'Day 5 is the most descent-forgiving of the week — just one brief steep section at <strong>km 23.4 (16.7%, 75m)</strong>. Controlled braking, nothing alarming. Concentrate on pacing for the full 147 km rather than technical descending.',
+    climbOverview: `<div class="note-box" style="margin-top:0.75rem;font-size:0.83rem">
+      <strong>📊 Climb Overview</strong> — <strong>0.25 km above 10% gradient</strong> across 12 sections — the most gradual day of the tour.
+      <table style="margin-top:0.5rem;width:100%;font-size:0.8rem;border-collapse:collapse">
+        <thead><tr style="border-bottom:1px solid #e0e0e0"><th style="text-align:left;padding:0.2rem 0.5rem 0.2rem 0">Zone</th><th style="text-align:left;padding:0.2rem 0">Notable sections</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 70.1–70.4</td><td style="padding:0.2rem 0"><strong>~108 m</strong> — the main event; the 15.3% climb between pit stops</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 105.4–105.5</td><td style="padding:0.2rem 0">60 m — brief late-stage climb at 13.9%</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">Everything else</td><td style="padding:0.2rem 0">Scattered 10–15 m snippets — no sustained effort required</td></tr>
+        </tbody>
+      </table>
+    </div>`,
+  },
+  6: {
+    note: '🚌 Bus from BejaParque Hotel to Ervidel departs 8:30am before riding begins.',
+    dinner: 'Hotel Eva Senses, Faro — 7:30pm',
+    stops: [
+      { type:'depart',  km:0,   gain:0,    name:'Ervidel (bus transfer from hotel)',  time:'~9:00am' },
+      { type:'pitstop', km:35,  gain:364,  name:'Castro Verde',                        time:'~10:30am'},
+      { type:'pitstop', km:79,  gain:1005, name:'Fonte Siceira',                       time:'~1:00pm' },
+      { type:'finish',  km:141, gain:1786, name:'Hotel Eva Senses, Faro',              time:'~4:00pm' },
+    ],
+    steepSections: [
+      { n:1,  km:64.0,  len:76,  peak:9.7  },
+      { n:2,  km:71.8,  len:83,  peak:12.1 },
+      { n:3,  km:71.9,  len:75,  peak:11.9 },
+      { n:4,  km:72.1,  len:50,  peak:8.1  },
+      { n:5,  km:75.4,  len:70,  peak:8.6  },
+      { n:6,  km:76.4,  len:76,  peak:15.4 },
+      { n:7,  km:77.0,  len:66,  peak:11.2 },
+      { n:8,  km:77.3,  len:100, peak:12.7 },
+      { n:9,  km:78.9,  len:160, peak:11.9 },
+      { n:10, km:79.3,  len:50,  peak:8.3  },
+      { n:11, km:79.6,  len:50,  peak:15.6 },
+      { n:12, km:79.7,  len:68,  peak:10.5 },
+      { n:13, km:81.9,  len:98,  peak:11.8 },
+      { n:14, km:82.1,  len:80,  peak:12.4 },
+      { n:15, km:82.3,  len:72,  peak:18.1 },
+      { n:16, km:82.4,  len:100, peak:10.8 },
+      { n:17, km:82.5,  len:50,  peak:8.3  },
+      { n:18, km:85.3,  len:161, peak:14.2 },
+      { n:19, km:85.5,  len:68,  peak:10.2 },
+      { n:20, km:85.7,  len:50,  peak:8.3  },
+      { n:21, km:85.8,  len:69,  peak:11.5 },
+      { n:22, km:85.9,  len:124, peak:10.7 },
+      { n:23, km:86.3,  len:98,  peak:11.2 },
+      { n:24, km:88.0,  len:67,  peak:10.7 },
+      { n:25, km:99.4,  len:50,  peak:8.1  },
+      { n:26, km:103.8, len:55,  peak:10.5 },
+      { n:27, km:103.9, len:80,  peak:12.8 },
+      { n:28, km:104.1, len:69,  peak:11.1 },
+      { n:29, km:104.3, len:50,  peak:8.7  },
+      { n:30, km:112.1, len:61,  peak:12.0 },
+      { n:31, km:112.3, len:74,  peak:11.0 },
+      { n:32, km:112.7, len:81,  peak:10.4 },
+      { n:33, km:112.8, len:50,  peak:9.0  },
+      { n:34, km:116.6, len:50,  peak:9.0  },
+      { n:35, km:116.9, len:50,  peak:8.7  },
+      { n:36, km:117.9, len:115, peak:19.1 },
+      { n:37, km:118.5, len:67,  peak:11.5 },
+      { n:38, km:139.8, len:105, peak:10.6 },
+      { n:39, km:139.9, len:50,  peak:8.3  },
+    ],
+    steepNote: '✅ <strong>All sections ridden — no walking needed on Day 6.</strong> Flat opening 64 km, then the km 71–88 zone (18.1% peak at km 82.3) and a 19.1% pitch at km 117.9 with 23 km to Faro — all conquered. 5 sections hit 13%+ — all ridden to the finish.',
+    noWalkWarning: true,
+    descentSections: [
+      { n:1, km:101.3, len:52, peak:25.6, dur:'0:04', concern:'extreme'   },
+      { n:2, km:139.6, len:77, peak:24.7, dur:'0:06', concern:'very steep'},
+    ],
+    descentNote: 'Two late-stage descents when legs and concentration are at their lowest. The <strong>km 101.3 drop (25.6%)</strong> is the steepest descent of the entire week — feather brakes, no sudden inputs, check your line. The <strong>km 139.6 descent (24.7%)</strong> arrives just 1.4 km from the finish in Faro — the worst moment to bin it.',
+    climbOverview: `<div class="note-box" style="margin-top:0.75rem;font-size:0.83rem">
+      <strong>📊 Climb Overview</strong> — <strong>0.75 km above 10% gradient</strong> across 28 sections — all in the second half after the flat opening 64 km.
+      <table style="margin-top:0.5rem;width:100%;font-size:0.8rem;border-collapse:collapse">
+        <thead><tr style="border-bottom:1px solid #e0e0e0"><th style="text-align:left;padding:0.2rem 0.5rem 0.2rem 0">Zone</th><th style="text-align:left;padding:0.2rem 0">Notable sections</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 71.8–88.0</td><td style="padding:0.2rem 0"><strong>~456 m across 19 sections</strong> — the main climbing block; relentless rolling terrain</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 103.8–104.1</td><td style="padding:0.2rem 0">56 m combined</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 112.1–112.7</td><td style="padding:0.2rem 0">52 m combined</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 117.9</td><td style="padding:0.2rem 0">81 m at 19.1% — isolated spike with 23 km to go</td></tr>
+          <tr><td style="padding:0.2rem 0.5rem 0.2rem 0;font-weight:600;white-space:nowrap">km 139.8</td><td style="padding:0.2rem 0">55 m — final kick 1.2 km from the finish in Faro</td></tr>
+        </tbody>
+      </table>
+    </div>`,
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+//  GPX LOADER  (fetch + parse + cache)
+// ═══════════════════════════════════════════════════════
+const gpxCache = {};
+
+function loadGpx(dayNum) {
+  if (gpxCache[dayNum]) return Promise.resolve(gpxCache[dayNum]);
+  return fetch(`day${dayNum}.gpx`)
+    .then(r => { if (!r.ok) throw new Error(`GPX fetch failed: ${r.status}`); return r.text(); })
+    .then(text => {
+      const doc   = new DOMParser().parseFromString(text, 'application/xml');
+      const nodes = doc.getElementsByTagName('trkpt');
+      const pts   = [];
+      for (let i = 0; i < nodes.length; i++) {
+        const n   = nodes[i];
+        const ele = n.getElementsByTagName('ele')[0];
+        pts.push([
+          parseFloat(n.getAttribute('lat')),
+          parseFloat(n.getAttribute('lon')),
+          ele ? parseFloat(ele.textContent) : 0,
+        ]);
+      }
+      gpxCache[dayNum] = pts;
+      return pts;
+    });
+}
+
+function haversineMKm(a, b) {
+  const R    = 6371;
+  const dlat = (b[0] - a[0]) * Math.PI / 180;
+  const dlon = (b[1] - a[1]) * Math.PI / 180;
+  const lat1 = a[0] * Math.PI / 180;
+  const lat2 = b[0] * Math.PI / 180;
+  const x    = Math.sin(dlat/2)**2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dlon/2)**2;
+  return R * 2 * Math.asin(Math.sqrt(Math.min(1, x)));
+}
+
+function buildChartProfile(pts, targetN) {
+  const step    = (pts.length - 1) / (targetN - 1);
+  const sampled = Array.from({ length: targetN }, (_, i) =>
+    pts[Math.min(Math.round(i * step), pts.length - 1)]
+  );
+  const labels = [0], elevs = [sampled[0][2]];
+  let cum = 0;
+  for (let i = 1; i < sampled.length; i++) {
+    cum += haversineMKm(sampled[i-1], sampled[i]);
+    labels.push(+cum.toFixed(2));
+    elevs.push(sampled[i][2]);
+  }
+  const minEle = Math.min(...elevs);
+  const maxEle = Math.max(...elevs);
+  return { labels, elevs, minEle, maxEle };
+}
+
+
+// ═══════════════════════════════════════════════════════
+//  PACE CALCULATOR
+// ═══════════════════════════════════════════════════════
+const RHO = 1.225, CDA = 0.32, CR = 0.004, G = 9.81;
+const CLIMB_GRADIENT = 0.02, DESCENT_GRADIENT = -0.02, DESCENT_SPEED_KMH = 40;
+const VAM_CONSTANT = 220; // m/h per W/kg at FTP
+
+function flatSpeedKmh(ftpW, weightKg) {
+  // Solve: ftpW = 0.5*RHO*CDA*v³ + CR*weightKg*G*v   (binary search)
+  let lo = 0, hi = 30;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    const p = 0.5 * RHO * CDA * mid**3 + CR * weightKg * G * mid;
+    if (p < ftpW) lo = mid; else hi = mid;
+  }
+  const vMs = (lo + hi) / 2;
+  return Math.max(8, vMs * 3.6);
+}
+
+function computePace(dayObj, ftpW, weightKg) {
+  // Estimate terrain split from gainM: assume ~5% avg climb gradient
+  const climbGainM    = dayObj.gainM;
+  const climbDistKm   = climbGainM / 50;
+  const descentDistKm = Math.min(climbDistKm * 0.85, dayObj.distKm * 0.25);
+  const flatDistKm    = Math.max(0, dayObj.distKm - climbDistKm - descentDistKm);
+
+  const wPerKg  = ftpW / weightKg;
+  const vam     = wPerKg * VAM_CONSTANT;
+  const flatSpd = flatSpeedKmh(ftpW, weightKg);
+
+  const climbHrs   = vam > 0 ? climbGainM / vam : 0;
+  const flatHrs    = flatSpd > 0 ? flatDistKm / flatSpd : 0;
+  const descentHrs = descentDistKm / DESCENT_SPEED_KMH;
+  const totalHrs   = climbHrs + flatHrs + descentHrs;
+  const avgSpd     = totalHrs > 0 ? dayObj.distKm / totalHrs : 0;
+
+  return { climbHrs, flatHrs, descentHrs, totalHrs, avgSpd };
+}
+
+function fmtTime(hrs) {
+  if (!isFinite(hrs) || hrs <= 0) return '–';
+  const h = Math.floor(hrs);
+  const m = Math.round((hrs - h) * 60);
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MAP & CHART STATE
+// ═══════════════════════════════════════════════════════
+let leafletMap     = null;
+let routeLayer     = null;
+let elevChart      = null;
+let activeDay      = 0; // index into DAYS
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: SUMMARY TABLE
+// ═══════════════════════════════════════════════════════
+function renderSummary() {
+  const ftpW     = +document.getElementById('ftp-slider').value;
+  const weightKg = +document.getElementById('weight-slider').value;
+  const tbody    = document.getElementById('summary-body');
+  tbody.innerHTML = '';
+
+  DAYS.forEach((d, i) => {
+    const p = computePace(d, ftpW, weightKg);
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.title = 'Click to explore this day';
+    tr.innerHTML = `
+      <td><span class="day-num">Day ${d.day}</span></td>
+      <td>${d.date}</td>
+      <td>${d.from} → ${d.to}</td>
+      <td>${d.distKm} km</td>
+      <td>${d.gainM.toLocaleString()} m</td>
+      <td class="eta-cell">${fmtTime(p.totalHrs)}</td>
+      <td class="speed-cell">${p.avgSpd.toFixed(1)} km/h</td>
+    `;
+    tr.addEventListener('click', () => selectDay(i));
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: PACE TABLE
+// ═══════════════════════════════════════════════════════
+function renderPaceTable() {
+  const ftpW     = +document.getElementById('ftp-slider').value;
+  const weightKg = +document.getElementById('weight-slider').value;
+  const tbody    = document.getElementById('pace-body');
+  tbody.innerHTML = '';
+
+  DAYS.forEach((d, i) => {
+    const p = computePace(d, ftpW, weightKg);
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.innerHTML = `
+      <td><span class="day-num">Day ${d.day}</span></td>
+      <td style="font-size:0.82rem">${d.from} → ${d.to}</td>
+      <td class="t-climb">${fmtTime(p.climbHrs)}</td>
+      <td class="t-flat">${fmtTime(p.flatHrs)}</td>
+      <td class="t-desc">${fmtTime(p.descentHrs)}</td>
+      <td class="t-total">${fmtTime(p.totalHrs)}</td>
+      <td class="speed-cell">${p.avgSpd.toFixed(1)} km/h</td>
+    `;
+    tr.addEventListener('click', () => selectDay(i));
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: MAP  (GPX polyline from official route file)
+// ═══════════════════════════════════════════════════════
+function renderMap(dayIdx, pts) {
+  const d = DAYS[dayIdx];
+  const loadingEl = document.getElementById('map-loading');
+  if (loadingEl) loadingEl.classList.add('hidden');
+
+  const midPt = pts[Math.floor(pts.length / 2)];
+
+  // Init map once
+  if (!leafletMap) {
+    leafletMap = L.map('map', { scrollWheelZoom: false }).setView([midPt[0], midPt[1]], 9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(leafletMap);
+  }
+
+  // Clean up previous layers
+  if (routeLayer) { leafletMap.removeLayer(routeLayer); routeLayer = null; }
+  leafletMap.eachLayer(l => { if (l instanceof L.Marker) leafletMap.removeLayer(l); });
+
+  // Thin points for map display (every 3rd, ~1000 pts max)
+  const nth  = Math.max(1, Math.floor(pts.length / 1200));
+  const latlngs = [];
+  for (let i = 0; i < pts.length; i++) {
+    if (i % nth === 0 || i === pts.length - 1) latlngs.push([pts[i][0], pts[i][1]]);
+  }
+
+  routeLayer = L.polyline(latlngs, { color: '#f77f00', weight: 4, opacity: 0.9 }).addTo(leafletMap);
+  leafletMap.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+
+  // Start / finish markers
+  L.marker([pts[0][0], pts[0][1]], { icon: pinIcon('#2d6a4f', 'S') })
+    .bindPopup(`<b>Start:</b> ${d.from}`).addTo(leafletMap);
+  L.marker([pts[pts.length-1][0], pts[pts.length-1][1]], { icon: pinIcon('#c1121f', 'F') })
+    .bindPopup(`<b>Finish:</b> ${d.to}`).addTo(leafletMap);
+
+  setTimeout(() => leafletMap.invalidateSize(), 50);
+}
+
+function pinIcon(color, letter) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:28px;height:28px;border-radius:50% 50% 50% 0;
+      background:${color};border:2px solid white;
+      transform:rotate(-45deg);
+      display:flex;align-items:center;justify-content:center;">
+      <span style="transform:rotate(45deg);color:white;font-weight:800;font-size:11px">${letter}</span>
+    </div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 28],
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: ELEVATION CHART  (actual GPX elevation data)
+// ═══════════════════════════════════════════════════════
+function renderElevationChart(dayIdx, pts) {
+  const d      = DAYS[dayIdx];
+  const CHART_N = 300;
+  const { labels, elevs, minEle, maxEle } = buildChartProfile(pts, CHART_N);
+
+  // Gradient % between sampled points
+  const gradients = [0];
+  for (let i = 1; i < elevs.length; i++) {
+    const dElev = elevs[i] - elevs[i-1];
+    const dDist = (labels[i] - labels[i-1]) * 1000;
+    gradients.push(dDist > 0 ? +(dElev / dDist * 100).toFixed(1) : 0);
+  }
+
+  const canvas = document.getElementById('elevation-chart');
+  if (elevChart) { elevChart.destroy(); elevChart = null; }
+
+  const chartPx = Math.max(960, Math.round(d.distKm * 9));
+  canvas.style.width  = chartPx + 'px';
+  canvas.style.height = '400px';
+  canvas.width  = chartPx;
+  canvas.height = 400;
+
+  const ctx  = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 0, 400);
+  grad.addColorStop(0,   'rgba(193,18,31,0.7)');
+  grad.addColorStop(0.4, 'rgba(247,127,0,0.5)');
+  grad.addColorStop(1,   'rgba(82,183,136,0.2)');
+
+  elevChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: elevs,
+        fill: true,
+        backgroundColor: grad,
+        borderColor: '#f77f00',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      responsive: false,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items) => `${items[0].label} km`,
+            label: (item) => {
+              const elev  = (+item.raw).toFixed(0);
+              const grade = gradients[item.dataIndex];
+              return [`Elevation: ${elev} m`, `Gradient: ${grade > 0 ? '+' : ''}${grade}%`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Distance (km)', font: { size: 11 } },
+          ticks: {
+            font: { size: 10 },
+            maxTicksLimit: 40,
+            callback(val) { return Math.round(+this.getLabelForValue(val)); },
+          },
+          grid: { color: 'rgba(0,0,0,0.06)' }
+        },
+        y: {
+          title: { display: true, text: 'Elevation (m)', font: { size: 11 } },
+          suggestedMin: Math.max(0, minEle - 50),
+          suggestedMax: maxEle + 80,
+          ticks: { font: { size: 10 } },
+          grid: { color: 'rgba(0,0,0,0.06)' }
+        }
+      }
+    }
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: DAY HEADER BAR
+// ═══════════════════════════════════════════════════════
+function renderDayHeader(dayIdx) {
+  const d    = DAYS[dayIdx];
+  const ftpW = +document.getElementById('ftp-slider').value;
+  const wKg  = +document.getElementById('weight-slider').value;
+  const p    = computePace(d, ftpW, wKg);
+
+  document.getElementById('day-header-bar').innerHTML = `
+    <div class="day-header">
+      <span class="day-badge">Day ${d.day}</span>
+      <span class="day-route">${d.from} → ${d.to}</span>
+      <div class="day-chips">
+        <span class="chip dist">${d.distKm} km</span>
+        <span class="chip climb">↑ ${d.gainM.toLocaleString()} m</span>
+        <span class="chip day-time">${fmtTime(p.totalHrs)}</span>
+        <a class="chip gpx-download" href="day${d.day}.gpx" download="Day${d.day}-2026-N2.gpx">⬇ GPX</a>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: DAILY ITINERARY
+// ═══════════════════════════════════════════════════════
+function renderItinerary(dayIdx) {
+  const d  = DAYS[dayIdx];
+  const it = ITINERARY[d.day];
+  const el = document.getElementById('day-itinerary');
+  if (!it || !el) return;
+
+  const icons  = { depart:'🚲', pitstop:'🍊', bus:'🚌', finish:'🏁' };
+  const labels = { depart:'Departure', pitstop:'Pit Stop', bus:'Bus Transfer', finish:'Finish' };
+  const noteColors = {
+    depart: '#e8f5e9', pitstop: '#fff8e8', bus: '#e3f2fd', finish: '#fdecea',
+  };
+
+  const rows = it.stops.map(s => {
+    const bg = noteColors[s.type];
+    return `<tr style="background:${bg}">
+      <td><span class="itin-badge badge-${s.type}">${icons[s.type]} ${labels[s.type]}</span></td>
+      <td style="text-align:center;font-weight:600">${s.km > 0 ? s.km + ' km' : '—'}</td>
+      <td style="text-align:center;font-weight:600;color:var(--red)">${s.gain > 0 ? '+' + s.gain.toLocaleString() + ' m' : '—'}</td>
+      <td style="font-size:0.85rem">${s.name}</td>
+      <td style="text-align:center;font-size:0.82rem;color:var(--text-muted)">${s.time}</td>
+    </tr>`;
+  }).join('');
+
+  const noteHtml = it.note
+    ? `<div class="note-box itin-note" style="background:#fff3cd;border-color:#ffc107">${it.note}</div>`
+    : '';
+
+  let steepHtml = '';
+  let walkHtml  = '';
+  if (it.steepSections) {
+    const totalLen = it.steepSections.reduce((s, c) => s + c.len, 0);
+    const steepRows = it.steepSections.map(c => {
+      const bg = c.peak >= 13 ? '#fdecea' : c.peak >= 10 ? '#fff3e0' : '#fff8e8';
+      const color = c.peak >= 13 ? 'var(--red)' : c.peak >= 10 ? '#e65100' : 'inherit';
+      return `<tr style="background:${bg}">
+        <td style="text-align:center;color:var(--text-muted);font-size:0.8rem">${c.n}</td>
+        <td style="text-align:center;font-weight:600">km ${c.km.toFixed(1)}</td>
+        <td style="text-align:center">${c.len} m</td>
+        <td style="text-align:center;font-weight:700;color:${color}">${c.peak}%</td>
+      </tr>`;
+    }).join('');
+
+    if (!it.noWalkWarning) {
+      const walkSections = it.steepSections.filter(c => c.peak >= 13);
+      if (walkSections.length) {
+        const walkRows = walkSections.map(c => `<tr style="background:#fdecea">
+          <td style="text-align:center;font-weight:600">km ${c.km.toFixed(1)}</td>
+          <td style="text-align:center">${c.len} m</td>
+          <td style="text-align:center;font-weight:700;color:var(--red)">${c.peak}%</td>
+          <td style="font-size:0.82rem;color:var(--text-muted)">${c.peak >= 20 ? 'Almost certainly walk' : c.peak >= 16 ? 'Very likely walk' : 'Likely walk'}</td>
+        </tr>`).join('');
+        walkHtml = `
+    <details style="margin-top:0.75rem">
+      <summary style="cursor:pointer;font-size:0.88rem;font-weight:600;color:var(--red);padding:0.4rem 0;list-style:none;display:flex;align-items:center;gap:0.4rem">
+        🚶 Walk Warnings — ${walkSections.length} section${walkSections.length > 1 ? 's' : ''} above 13%
+      </summary>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin:0.4rem 0 0.5rem">Sections above 13% gradient are steep enough that walking is sensible — especially later in the tour when legs are fatigued. No shame in it; it\'s faster than blowing up.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Starts at</th><th>Length</th><th>Peak</th><th>Advice</th></tr></thead>
+          <tbody>${walkRows}</tbody>
+        </table>
+      </div>
+    </details>`;
+      }
+    }
+
+    steepHtml = `
+    <details style="margin-top:0.75rem">
+      <summary style="cursor:pointer;font-size:0.88rem;font-weight:600;color:var(--red);padding:0.4rem 0;list-style:none;display:flex;align-items:center;gap:0.4rem">
+        ⛰️ Steep Sections &gt;8% — ${it.steepSections.length} climbs · ${(totalLen / 1000).toFixed(2)} km total
+      </summary>
+      ${it.steepNote ? `<p style="font-size:0.82rem;color:var(--text-muted);margin:0.5rem 0 0.6rem">${it.steepNote}</p>` : ''}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Starts at</th><th>Length</th><th>Peak</th></tr></thead>
+          <tbody>${steepRows}</tbody>
+        </table>
+      </div>
+    </details>`;
+  }
+
+  let descentHtml = '';
+  if (it.descentSections && it.descentSections.length) {
+    const totalDescentLen = it.descentSections.reduce((s, c) => s + c.len, 0);
+    const descentRows = it.descentSections.map(c => {
+      const bg    = c.concern === 'extreme'    ? '#e3f2fd' : c.concern === 'very steep' ? '#e8f0fe' : '#f0f4ff';
+      const color = c.concern === 'extreme'    ? '#0d47a1' : c.concern === 'very steep' ? '#1565c0' : '#3949ab';
+      const label = c.concern === 'extreme'    ? 'Extreme — feather brakes continuously'
+                  : c.concern === 'very steep' ? 'Very steep — brake hard before corners'
+                  :                              'Steep — controlled braking needed';
+      return `<tr style="background:${bg}">
+        <td style="text-align:center;font-weight:600">km ${c.km.toFixed(1)}</td>
+        <td style="text-align:center">${c.len} m</td>
+        <td style="text-align:center;font-weight:700;color:${color}">${c.peak}%</td>
+        <td style="text-align:center;color:var(--text-muted)">${c.dur}</td>
+        <td style="font-size:0.82rem;color:${color};font-weight:600">${label}</td>
+      </tr>`;
+    }).join('');
+    descentHtml = `
+    <details style="margin-top:0.75rem">
+      <summary style="cursor:pointer;font-size:0.88rem;font-weight:600;color:#1565c0;padding:0.4rem 0;list-style:none;display:flex;align-items:center;gap:0.4rem">
+        🛑 Steep Descents &gt;15% — ${it.descentSections.length} section${it.descentSections.length > 1 ? 's' : ''} · ${(totalDescentLen / 1000).toFixed(2)} km total
+      </summary>
+      ${it.descentNote ? `<p style="font-size:0.82rem;color:var(--text-muted);margin:0.4rem 0 0.5rem">${it.descentNote}</p>` : ''}
+      <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 0.5rem;font-style:italic">Duration estimated at 40 km/h. Brake early, feather don't grab, scrub speed before corners not during them.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Starts at</th><th>Length</th><th>Peak</th><th>Duration</th><th>Braking concern</th></tr></thead>
+          <tbody>${descentRows}</tbody>
+        </table>
+      </div>
+    </details>`;
+  }
+
+  el.innerHTML = `
+    <div class="card-title" style="margin-bottom:0.5rem;margin-top:0.2rem">📍 Daily Itinerary</div>
+    ${noteHtml}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>KM</th><th>Climbed</th><th>Location</th><th>Time</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem">🍽️ ${it.dinner}</div>
+    ${it.climbOverview || ''}
+    ${descentHtml}
+    ${walkHtml}
+    ${steepHtml}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SELECT DAY
+// ═══════════════════════════════════════════════════════
+async function selectDay(dayIdx) {
+  activeDay = dayIdx;
+
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === dayIdx);
+  });
+
+  renderDayHeader(dayIdx);
+  renderItinerary(dayIdx);
+
+  const loadingEl = document.getElementById('map-loading');
+  if (loadingEl) loadingEl.classList.remove('hidden');
+
+  try {
+    const pts = await loadGpx(DAYS[dayIdx].day);
+    renderMap(dayIdx, pts);
+    renderElevationChart(dayIdx, pts);
+  } catch(e) {
+    console.error('GPX load failed for day', dayIdx + 1, e);
+    if (loadingEl) { loadingEl.textContent = 'Failed to load GPX route.'; loadingEl.classList.remove('hidden'); }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  BUILD TABS
+// ═══════════════════════════════════════════════════════
+function buildTabs() {
+  const container = document.getElementById('day-tabs');
+  DAYS.forEach((d, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = `Day ${d.day} · ${d.from.split(' ')[0]}`;
+    btn.addEventListener('click', () => selectDay(i));
+    container.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Slider display updates
+  const ftpSlider    = document.getElementById('ftp-slider');
+  const weightSlider = document.getElementById('weight-slider');
+  const ftpDisplay   = document.getElementById('ftp-display');
+  const weightDisplay = document.getElementById('weight-display');
+
+  const pwrValue    = document.getElementById('pwr-value');
+  const pwrCategory = document.getElementById('pwr-category');
+  function pwrCategory_(wkg) {
+    if (wkg < 1.5) return { label: 'Recreational',       color: '#888' };
+    if (wkg < 2.5) return { label: 'Fitness Rider',      color: '#64b5f6' };
+    if (wkg < 3.1) return { label: 'Sportive / Gran Fondo', color: '#4db6ac' };
+    if (wkg < 3.6) return { label: 'Amateur Racer',      color: '#aed581' };
+    if (wkg < 4.1) return { label: 'Cat 3–4',            color: '#ffb74d' };
+    if (wkg < 5.0) return { label: 'Cat 1–2',            color: '#ff8a65' };
+    return                  { label: 'Pro / Elite',       color: '#e57373' };
+  }
+
+  function onSliderChange() {
+    ftpDisplay.textContent    = ftpSlider.value;
+    weightDisplay.textContent = weightSlider.value;
+    const wkg = (+ftpSlider.value / +weightSlider.value).toFixed(2);
+    const cat  = pwrCategory_(+wkg);
+    pwrValue.textContent    = wkg + ' W/kg';
+    pwrCategory.textContent = cat.label;
+    pwrCategory.style.color = cat.color;
+    renderSummary();
+    renderPaceTable();
+    renderDayHeader(activeDay);
+  }
+
+  ftpSlider.addEventListener('input', onSliderChange);
+  weightSlider.addEventListener('input', onSliderChange);
+
+  // Build UI
+  buildTabs();
+  onSliderChange();
+  selectDay(5);
+
+  // Guarantee pace calculator starts collapsed regardless of browser state
+  document.getElementById('pace-details').open = false;
+
+  // Re-fit map when Day Explorer is toggled open
+  document.getElementById('day-explorer-card').addEventListener('toggle', function() {
+    if (this.open && leafletMap) setTimeout(() => leafletMap.invalidateSize(), 50);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+//  COUNTDOWN TIMERS
+// ═══════════════════════════════════════════════════════
+(function() {
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  // Archive page — countdown elements removed, nothing to run.
+  if (!document.getElementById('cd-days')) return;
+
+  // ── Counter 1: ride start — Mon 25 May 06:00, freezes at 0 ──
+  const startTarget = new Date('2026-05-25T06:00:00');
+  const startEls = {
+    d: document.getElementById('cd-days'),
+    h: document.getElementById('cd-hrs'),
+    m: document.getElementById('cd-min'),
+    s: document.getElementById('cd-sec'),
+  };
+  const t1 = setInterval(function() {
+    const diff = startTarget - Date.now();
+    if (diff <= 0) {
+      startEls.d.textContent = '0';
+      startEls.h.textContent = '00';
+      startEls.m.textContent = '00';
+      startEls.s.textContent = '00';
+      clearInterval(t1);
+      return;
+    }
+    const totalSec = Math.floor(diff / 1000);
+    startEls.d.textContent = Math.floor(totalSec / 86400);
+    startEls.h.textContent = pad(Math.floor((totalSec % 86400) / 3600));
+    startEls.m.textContent = pad(Math.floor((totalSec % 3600)  / 60));
+    startEls.s.textContent = pad(totalSec % 60);
+  }, 1000);
+  t1.call(this); // run immediately
+
+  // ── Counter 2: ride finish — visible from Mon 07:00, target Sat 30 May 17:00 ──
+  const finishVisible = new Date('2026-05-25T07:00:00');
+  const finishTarget  = new Date('2026-05-30T17:00:00');
+  const finishWrap = document.getElementById('countdown-finish-wrap');
+  const finishEls  = {
+    d: document.getElementById('cdf-days'),
+    h: document.getElementById('cdf-hrs'),
+    m: document.getElementById('cdf-min'),
+    s: document.getElementById('cdf-sec'),
+  };
+  const t2 = setInterval(function() {
+    const now = Date.now();
+    if (now < finishVisible) return; // not yet visible
+    finishWrap.style.display = 'flex';
+    const diff = finishTarget - now;
+    if (diff <= 0) {
+      finishEls.d.textContent = '0';
+      finishEls.h.textContent = '00';
+      finishEls.m.textContent = '00';
+      finishEls.s.textContent = '00';
+      clearInterval(t2);
+      return;
+    }
+    const totalSec = Math.floor(diff / 1000);
+    finishEls.d.textContent = Math.floor(totalSec / 86400);
+    finishEls.h.textContent = pad(Math.floor((totalSec % 86400) / 3600));
+    finishEls.m.textContent = pad(Math.floor((totalSec % 3600)  / 60));
+    finishEls.s.textContent = pad(totalSec % 60);
+  }, 1000);
+  t2.call(this);
+})();
+</script>
+</body>
+</html>
